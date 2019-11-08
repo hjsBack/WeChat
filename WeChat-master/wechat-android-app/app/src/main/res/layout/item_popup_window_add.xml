@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.csu.software.wechat.widget.BubbleLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/x_18"
+    android:paddingEnd="@dimen/x_10"
+    app:background_color="@color/popupBackground"
+    app:direction="top"
+    app:offset="@dimen/x_86"
+    app:radius="@dimen/x_8"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+<!--<RelativeLayout-->
+<!--    android:layout_width="wrap_content"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:background="@color/popupBackground"-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android">-->
+
+    <RelativeLayout
+        android:layout_width="@dimen/x_240"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector_button_color_popup">
+
+        <RelativeLayout
+            android:id="@+id/rl_group_chat"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_60"
+            android:background="@drawable/selector_button_color_popup">
+
+            <ImageView
+                android:layout_width="@dimen/x_30"
+                android:layout_height="@dimen/x_30"
+                android:layout_marginTop="@dimen/x_15"
+                android:layout_marginStart="@dimen/x_20"
+                android:background="@drawable/ic_icon_message_white"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/x_70"
+                android:layout_marginTop="@dimen/x_12"
+                android:textSize="@dimen/x_24"
+                android:textColor="@color/layoutColor"
+                android:text="@string/group_chat"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_add_friend"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_60"
+            android:layout_below="@id/rl_group_chat"
+            android:background="@drawable/selector_button_color_popup">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x_05"
+                android:background="@color/whiteLine"/>
+
+            <ImageView
+                android:layout_width="@dimen/x_30"
+                android:layout_height="@dimen/x_30"
+                android:layout_marginTop="@dimen/x_15"
+                android:layout_marginStart="@dimen/x_20"
+                android:background="@drawable/ic_icon_add_person_white"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/x_70"
+                android:layout_marginTop="@dimen/x_12"
+                android:textSize="@dimen/x_24"
+                android:textColor="@color/layoutColor"
+                android:text="@string/add_friend"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_scan"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_60"
+            android:layout_below="@id/rl_add_friend"
+            android:background="@drawable/selector_button_color_popup">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x_05"
+                android:background="@color/whiteLine"/>
+
+            <ImageView
+                android:layout_width="@dimen/x_30"
+                android:layout_height="@dimen/x_30"
+                android:layout_marginTop="@dimen/x_15"
+                android:layout_marginStart="@dimen/x_20"
+                android:background="@drawable/ic_icon_scan_white"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/x_70"
+                android:layout_marginTop="@dimen/x_12"
+                android:textSize="@dimen/x_24"
+                android:textColor="@color/layoutColor"
+                android:text="@string/scan"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_receive_payment"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_60"
+            android:layout_below="@id/rl_scan"
+            android:background="@drawable/selector_button_color_popup">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x_05"
+                android:background="@color/whiteLine"/>
+
+            <ImageView
+                android:layout_width="@dimen/x_30"
+                android:layout_height="@dimen/x_30"
+                android:layout_marginTop="@dimen/x_15"
+                android:layout_marginStart="@dimen/x_20"
+                android:background="@drawable/ic_receive_payment"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/x_70"
+                android:layout_marginTop="@dimen/x_12"
+                android:textSize="@dimen/x_24"
+                android:textColor="@color/layoutColor"
+                android:text="@string/receive_payment"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_help"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_60"
+            android:layout_below="@id/rl_receive_payment"
+            android:background="@drawable/selector_button_color_popup">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x_05"
+                android:background="@color/whiteLine"/>
+
+            <ImageView
+                android:layout_width="@dimen/x_30"
+                android:layout_height="@dimen/x_30"
+                android:layout_marginTop="@dimen/x_15"
+                android:layout_marginStart="@dimen/x_20"
+                android:background="@drawable/ic_icon_email_white"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/x_70"
+                android:layout_marginTop="@dimen/x_12"
+                android:textSize="@dimen/x_24"
+                android:textColor="@color/layoutColor"
+                android:text="@string/help"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+<!--</RelativeLayout>-->
+
+</cn.csu.software.wechat.widget.BubbleLayout>

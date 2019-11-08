@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">We Chat</string>
+    <string name="sign_in">sign in</string>
+    <string name="send">发送</string>
+    <string name="download_path">下载路径</string>
+    <string name="download">下载</string>
+    <string name="tab_name_message">消息</string>
+    <string name="tab_name_friend">通讯录</string>
+    <string name="tab_name_circle">发现</string>
+    <string name="tab_name_mine">我的</string>
+
+    <string name="login">登录</string>
+    <string name="midnight_snack_name">夜宵</string>
+    <string name="order_name">订单</string>
+    <string name="mine_name">我的</string>
+    <string name="setting">设置</string>
+    <string name="pay">支付</string>
+    <string name="qr_code">二维码</string>
+    <string name="collection">收藏</string>
+    <string name="address">地址</string>
+    <string name="huangjishun">黄绩顺</string>
+    <string name="jab_number">工号：00510960</string>
+    <string name="circle">朋友圈</string>
+    <string name="scan">扫一扫</string>
+    <string name="shake">摇一摇</string>
+    <string name="look">看一看</string>
+    <string name="search">搜一搜</string>
+    <string name="shopping">购物</string>
+    <string name="game">游戏</string>
+    <string name="group_chat">发起群聊</string>
+    <string name="add_friend">添加朋友</string>
+    <string name="receive_payment">收付款</string>
+    <string name="help">帮助与反馈</string>
+</resources>

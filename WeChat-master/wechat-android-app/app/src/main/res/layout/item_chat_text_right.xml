@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/rl_blank_text_right_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x_16"
+        android:background="@color/layoutBackground"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_chat_text_right"
+        android:layout_below="@+id/rl_blank_text_right_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/layoutBackground">
+
+        <cn.csu.software.wechat.widget.BubbleLayout
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="@dimen/x_40"
+            android:layout_height="@dimen/x_50"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/x_76"
+            android:paddingEnd="@dimen/x_16"
+            app:background_color="@color/chatMessageBackground"
+            app:direction="right"
+            app:offset="0dp"
+            app:radius="@dimen/x_6">
+
+        </cn.csu.software.wechat.widget.BubbleLayout>
+
+        <TextView
+            android:id="@+id/tv_chat_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/x_100"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/x_92"
+            android:layout_gravity="right"
+            android:paddingBottom="@dimen/x_12"
+            android:paddingStart="@dimen/x_12"
+            android:paddingEnd="@dimen/x_12"
+            android:paddingTop="@dimen/x_12"
+            android:maxEms="15"
+            android:textSize="@dimen/x_24"
+            android:textColor="@color/black"
+            android:background="@drawable/radius_chat_background_right"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cv_avatar_text_right"
+            android:layout_width="@dimen/x_60"
+            android:layout_height="@dimen/x_60"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/x_16"
+            app:cardCornerRadius="@dimen/x_8">
+
+            <ImageView
+                android:id="@+id/iv_avatar_text_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@mipmap/avatar_me"/>
+        </android.support.v7.widget.CardView>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_blank_text_right_bottom"
+        android:layout_below="@+id/rl_chat_text_right"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x_16"
+        android:background="@color/layoutBackground" />
+
+</RelativeLayout>

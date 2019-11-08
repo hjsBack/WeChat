@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="itemBackground">#D6D6D6</color>
+    <color name="layoutBackground">#E0E0E0</color>
+    <color name="layoutColor">#EEEEEE</color>
+    <color name="pressedBackground">#9C9C9C</color>
+    <color name="popupBackground">#E9444444</color>
+    <color name="popupBackgroundPressed">#343434</color>
+    <color name="blackLine">#BBBBBB</color>
+    <color name="whiteLine">#888888</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="chatMessageBackground">#00DA27</color>
+    <color name="textColorGray">#BBBBBB</color>
+</resources>

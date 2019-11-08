@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="@drawable/selector_button_color_item">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_avatar_friend_chat_info"
+        android:layout_width="@dimen/x_80"
+        android:layout_height="@dimen/x_80"
+        android:layout_marginStart="@dimen/x_10"
+        android:layout_marginTop="@dimen/x_10"
+        app:cardCornerRadius="@dimen/x_8">
+
+        <ImageView
+            android:id="@+id/iv_avatar_friend_chat_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/avatar_me"/>
+    </android.support.v7.widget.CardView>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/x_80"
+        android:layout_toEndOf="@+id/cv_avatar_friend_chat_info"
+        android:layout_marginStart="@dimen/x_20">
+
+        <TextView
+            android:id="@+id/tv_name_friend_chat_info"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_40"
+            android:layout_marginTop="@dimen/x_14"
+            android:textSize="@dimen/x_27"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/tv_message_friend_chat_info"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_30"
+            android:gravity="center_vertical"
+            android:layout_below="@id/tv_name_friend_chat_info"
+            android:textSize="@dimen/x_15"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/textColorGray"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="@dimen/x_70"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/tv_send_time_friend_chat_info"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x_40"
+            android:layout_marginTop="@dimen/x_20"
+            android:textSize="@dimen/x_12"
+            android:textColor="@color/textColorGray"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x_05"
+        android:layout_marginTop="@dimen/x_100"
+        android:layout_marginLeft="@dimen/x_110"
+        android:background="@color/blackLine" />
+
+</RelativeLayout>
