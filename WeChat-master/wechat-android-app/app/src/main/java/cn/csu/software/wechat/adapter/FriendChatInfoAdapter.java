@@ -19,7 +19,9 @@ import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.util.FileProcessUtil;
+import cn.csu.software.wechat.util.LogUtil;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,7 +61,12 @@ public class FriendChatInfoAdapter extends RecyclerView.Adapter {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String sendTime = sdf.format(new Date(mUserInfoList.get(position).getLastMessageSendTime()));
             friendChatInfoHolder.mSendTimeTextView.setText(String.valueOf(sendTime));
-            Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mUserInfoList.get(position).getAvatarPath());
+            Bitmap bitmap = null;
+            try {
+                bitmap = FileProcessUtil.getBitmap(mContext, mUserInfoList.get(position).getAvatarPath());
+            } catch (IOException e) {
+                LogUtil.e(TAG, "get bitmap error");
+            }
             if (bitmap != null) {
                 friendChatInfoHolder.mFriendAvatarImageView.setImageBitmap(bitmap);
             }

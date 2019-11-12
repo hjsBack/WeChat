@@ -26,14 +26,19 @@ public class ChatMessage implements Serializable {
     public static final int PHOTO_TYPE = 1;
 
     /**
+     * 语音消息类型
+     */
+    public static final int VOICE_TYPE = 2;
+
+    /**
      * 视频消息类型
      */
-    public static final int VIDEO_TYPE = 2;
+    public static final int VIDEO_TYPE = 3;
 
     /**
      * 文本图片综合消息类型
      */
-    public static final int TEXT_AND_PHOTO_TYPE = 3;
+    public static final int TEXT_AND_PHOTO_TYPE = 4;
 
     public static final int SEND_TYPE = 0;
 
@@ -59,6 +64,8 @@ public class ChatMessage implements Serializable {
 
     private String chatMessageText;
 
+    private String chatMessageVoicePath;
+
     private String chatMessagePhotoPath;
 
     private String chatMessageVideoPath;
@@ -74,6 +81,7 @@ public class ChatMessage implements Serializable {
         this.chatMessageType = 0;
         this.sendTime = 0;
         this.chatMessageText = "";
+        chatMessageVoicePath = "";
         this.chatMessagePhotoPath = "";
         this.chatMessageVideoPath = "";
     }
@@ -81,7 +89,7 @@ public class ChatMessage implements Serializable {
     public ChatMessage(int senderAccount, int receiverAccount, String senderName,
                        String receiverName, String avatarPath, int unreadMessageCount,
                        int chatMessageType, int sendOrReceiver, long sendTime, String chatMessageText,
-                       String chatMessagePhotoPath, String chatMessageVideoPath) {
+                       String chatMessageVoicePath, String chatMessagePhotoPath, String chatMessageVideoPath) {
         this.senderAccount = senderAccount;
         this.receiverAccount = receiverAccount;
         this.senderName = senderName;
@@ -92,6 +100,7 @@ public class ChatMessage implements Serializable {
         this.chatMessageType = chatMessageType;
         this.sendTime = sendTime;
         this.chatMessageText = chatMessageText;
+        this.chatMessageVoicePath = chatMessageVoicePath;
         this.chatMessagePhotoPath = chatMessagePhotoPath;
         this.chatMessageVideoPath = chatMessageVideoPath;
     }
@@ -176,6 +185,14 @@ public class ChatMessage implements Serializable {
         this.chatMessageType = chatMessageType;
     }
 
+    public String getChatMessageVoicePath() {
+        return chatMessageVoicePath;
+    }
+
+    public void setChatMessageVoicePath(String chatMessageVoicePath) {
+        this.chatMessageVoicePath = chatMessageVoicePath;
+    }
+
     public String getChatMessagePhotoPath() {
         return chatMessagePhotoPath;
     }
@@ -202,8 +219,10 @@ public class ChatMessage implements Serializable {
             ", avatarPath='" + avatarPath + '\'' +
             ", unreadMessageCount=" + unreadMessageCount +
             ", chatMessageType=" + chatMessageType +
+            ", sendOrReceiver=" + sendOrReceiver +
             ", sendTime=" + sendTime +
             ", chatMessageText='" + chatMessageText + '\'' +
+            ", chatMessageVoicePath='" + chatMessageVoicePath + '\'' +
             ", chatMessagePhotoPath='" + chatMessagePhotoPath + '\'' +
             ", chatMessageVideoPath='" + chatMessageVideoPath + '\'' +
             '}';

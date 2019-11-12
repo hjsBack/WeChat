@@ -43,6 +43,8 @@ public class ChatMessageContent implements BaseColumns {
 
     public static final String CHAT_MESSAGE_TEXT = "chat_message_text";
 
+    public static final String CHAT_MESSAGE_VOICE_PATH = "chat_message_voice_path";
+
     public static final String CHAT_MESSAGE_PHOTO_PATH = "chat_message_photo_path";
 
     public static final String CHAT_MESSAGE_VIDEO_PATH = "chat_message_video_path";

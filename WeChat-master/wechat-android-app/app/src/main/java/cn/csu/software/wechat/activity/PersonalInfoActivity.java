@@ -18,11 +18,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.util.BitmapUtil;
 import cn.csu.software.wechat.util.FileProcessUtil;
+import cn.csu.software.wechat.util.LogUtil;
 
 /**
  * 消息界面
@@ -77,7 +80,12 @@ public class PersonalInfoActivity extends Activity implements View.OnClickListen
         mAccountTextView = findViewById(R.id.tv_account);
         mAccountTextView.setText(String.valueOf(mUserInfo.getAccount()));
         mAvatarImageView = findViewById(R.id.iv_personal_avatar);
-        Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mUserInfo.getAvatarPath());
+        Bitmap bitmap = null;
+        try {
+            bitmap = FileProcessUtil.getBitmap(mContext, mUserInfo.getAvatarPath());
+        } catch (IOException e) {
+            LogUtil.e(TAG, "get bitmap error");
+        }
         if (bitmap != null) {
             mAvatarImageView.setImageBitmap(bitmap);
         }

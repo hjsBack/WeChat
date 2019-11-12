@@ -76,7 +76,7 @@ public class SocketService extends Service implements SocketClient.SocketClientL
 
     @Override
     public void onSocketClientListener(SocketData socketData) {
-        LogUtil.i(TAG, "socket data: %s", socketData.toString());
+        LogUtil.i(TAG, "receive socket data: %s", socketData.toString());
         mDatabaseHelper = UserInfoDatabaseHelper.getInstance(mContext, ConstantData.DATABASE_CREATE_VISION_SECOND_TIME);
         long sendTime = System.currentTimeMillis();
         UserInfo senderUserInfo = mDatabaseHelper.queryByAccount(socketData.getSenderAccount());
@@ -85,7 +85,7 @@ public class SocketService extends Service implements SocketClient.SocketClientL
         if (socketData.getMessageType() == ChatMessage.TEXT_TYPE) {
             chatMessage = new ChatMessage(senderUserInfo.getAccount(), receiverUserInfo.getAccount(),
                 senderUserInfo.getUsername(), receiverUserInfo.getUsername(), senderUserInfo.getAvatarPath(),
-                0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime, socketData.getTextMessage(), "", "");
+                0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime, socketData.getTextMessage(),"", "", "");
             senderUserInfo.setLastMessage(socketData.getTextMessage());
         } else {
             try {
@@ -100,7 +100,7 @@ public class SocketService extends Service implements SocketClient.SocketClientL
                 BitmapUtil.saveImg(compressionImagePath, compressionBitmap);
                 chatMessage = new ChatMessage(senderUserInfo.getAccount(), receiverUserInfo.getAccount(),
                     senderUserInfo.getUsername(), receiverUserInfo.getUsername(), senderUserInfo.getAvatarPath(),
-                    0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime, socketData.getTextMessage(), compressionImagePath, "");
+                    0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime, socketData.getTextMessage(), "", compressionImagePath, "");
                 senderUserInfo.setLastMessage(ConstantData.PHOTO_MESSAGE);
             } catch (IOException e) {
                 LogUtil.e(TAG, "write image error");
@@ -125,10 +125,14 @@ public class SocketService extends Service implements SocketClient.SocketClientL
                         socketData = new SocketData(chatMessage.getReceiverAccount(),
                             chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
                             chatMessage.getChatMessageText(), new byte[0]);
-                    } else {
+                    } else if (chatMessage.getChatMessageType() == ChatMessage.PHOTO_TYPE){
                         socketData = new SocketData(chatMessage.getReceiverAccount(),
                             chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
                             chatMessage.getChatMessageText(), Files.readAllBytes(Paths.get(chatMessage.getChatMessagePhotoPath())));
+                    } else {
+                        socketData = new SocketData(chatMessage.getReceiverAccount(),
+                            chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
+                            chatMessage.getChatMessageText(), Files.readAllBytes(Paths.get(chatMessage.getChatMessageVoicePath())));
                     }
 
                     mSocketClient.sendMessage(socketData);

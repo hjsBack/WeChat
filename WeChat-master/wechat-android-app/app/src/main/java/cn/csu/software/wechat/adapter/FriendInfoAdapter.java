@@ -2,7 +2,6 @@
  * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
  */
 
-
 package cn.csu.software.wechat.adapter;
 
 import android.annotation.SuppressLint;
@@ -20,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +28,7 @@ import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.util.BitmapUtil;
 import cn.csu.software.wechat.util.FileProcessUtil;
+import cn.csu.software.wechat.util.LogUtil;
 
 /**
  * 好友界面 recycle view adapter
@@ -59,7 +60,12 @@ public class FriendInfoAdapter extends RecyclerView.Adapter {
         if (holder instanceof FriendChatInfoHolder) {
             FriendChatInfoHolder friendChatInfoHolder = (FriendChatInfoHolder) holder;
             friendChatInfoHolder.mFriendNameTextView.setText(mUserInfoList.get(position).getUsername());
-            Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mUserInfoList.get(position).getAvatarPath());
+            Bitmap bitmap = null;
+            try {
+                bitmap = FileProcessUtil.getBitmap(mContext, mUserInfoList.get(position).getAvatarPath());
+            } catch (IOException e) {
+                LogUtil.e(TAG, "get bitmap error");
+            }
             if (bitmap != null) {
                 friendChatInfoHolder.mFriendAvatarImageView.setImageBitmap(bitmap);
             }

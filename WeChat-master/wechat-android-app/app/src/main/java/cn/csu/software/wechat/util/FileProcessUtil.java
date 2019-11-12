@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -83,26 +84,14 @@ public class FileProcessUtil {
      * @param filePath 文件名
      * @return 返回Bitmap数据
      */
-    public static Bitmap getBitmap(Context con, String filePath) {
+    public static Bitmap getBitmap(Context con, String filePath) throws IOException {
         Bitmap bitmap = null;
         if ((filePath == null) || (con == null)) {
             return bitmap;
         }
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(filePath);
-            bitmap = BitmapFactory.decodeStream(is);
-        } catch (IOException e) {
-            LogUtil.e(TAG, "get bitmap file error! %s", e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    LogUtil.e(TAG, "get bitmap file error! %s", e);
-                }
-            }
-        }
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+        bitmap = BitmapFactory.decodeStream(fileInputStream);
+        fileInputStream.close();
         return bitmap;
     }
 

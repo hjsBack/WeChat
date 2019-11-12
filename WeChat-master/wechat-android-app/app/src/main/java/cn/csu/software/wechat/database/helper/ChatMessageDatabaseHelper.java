@@ -106,6 +106,7 @@ public class ChatMessageDatabaseHelper extends SQLiteOpenHelper {
             + ChatMessageContent.CHAT_MESSAGE_TYPE + " INTEGER NOT NULL,"
             + ChatMessageContent.SEND_TIME + " INTEGER NOT NULL,"
             + ChatMessageContent.CHAT_MESSAGE_TEXT + " VARCHAR NOT NULL,"
+            + ChatMessageContent.CHAT_MESSAGE_VOICE_PATH + " VARCHAR NOT NULL,"
             + ChatMessageContent.CHAT_MESSAGE_PHOTO_PATH + " VARCHAR NOT NULL,"
             + ChatMessageContent.CHAT_MESSAGE_VIDEO_PATH + " VARCHAR NOT NULL"
             + ");";
@@ -168,6 +169,7 @@ public class ChatMessageDatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(ChatMessageContent.CHAT_MESSAGE_TYPE, chatMessage.getChatMessageType());
             contentValues.put(ChatMessageContent.SEND_TIME, chatMessage.getSendTime());
             contentValues.put(ChatMessageContent.CHAT_MESSAGE_TEXT, chatMessage.getChatMessageText());
+            contentValues.put(ChatMessageContent.CHAT_MESSAGE_VOICE_PATH, chatMessage.getChatMessageVoicePath());
             contentValues.put(ChatMessageContent.CHAT_MESSAGE_PHOTO_PATH, chatMessage.getChatMessagePhotoPath());
             contentValues.put(ChatMessageContent.CHAT_MESSAGE_VIDEO_PATH, chatMessage.getChatMessageVideoPath());
             // 执行插入记录动作，该语句返回插入记录的行号
@@ -195,6 +197,7 @@ public class ChatMessageDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(ChatMessageContent.CHAT_MESSAGE_TYPE, chatMessage.getChatMessageType());
         contentValues.put(ChatMessageContent.SEND_TIME, chatMessage.getSendTime());
         contentValues.put(ChatMessageContent.CHAT_MESSAGE_TEXT, chatMessage.getChatMessageText());
+        contentValues.put(ChatMessageContent.CHAT_MESSAGE_VOICE_PATH, chatMessage.getChatMessageVoicePath());
         contentValues.put(ChatMessageContent.CHAT_MESSAGE_PHOTO_PATH, chatMessage.getChatMessagePhotoPath());
         contentValues.put(ChatMessageContent.CHAT_MESSAGE_VIDEO_PATH, chatMessage.getChatMessageVideoPath());
         // 执行更新记录动作，该语句返回记录更新的数目
@@ -218,8 +221,9 @@ public class ChatMessageDatabaseHelper extends SQLiteOpenHelper {
             + ChatMessageContent.RECEIVER_NAME + "," + ChatMessageContent.UNREAD_MESSAGE_COUNT + ","
             + ChatMessageContent.AVATAR_PATH + "," + ChatMessageContent.CHAT_MESSAGE_TYPE + ","
             + ChatMessageContent.SEND_OR_RECEIVER + "," + ChatMessageContent.SEND_TIME + ","
-            + ChatMessageContent.CHAT_MESSAGE_TEXT + "," + ChatMessageContent.CHAT_MESSAGE_PHOTO_PATH
-            + "," + ChatMessageContent.CHAT_MESSAGE_VIDEO_PATH + " from %s where %s;", TABLE_NAME, condition);
+            + ChatMessageContent.CHAT_MESSAGE_TEXT + "," + ChatMessageContent.CHAT_MESSAGE_PHOTO_PATH + ","
+            + ChatMessageContent.CHAT_MESSAGE_VOICE_PATH + "," + ChatMessageContent.CHAT_MESSAGE_VIDEO_PATH
+            + " from %s where %s;", TABLE_NAME, condition);
         LogUtil.d(TAG, "query sql: " + sql);
         ArrayList<ChatMessage> chatMessageList = new ArrayList<>();
         // 执行记录查询动作，该语句返回结果集的游标
@@ -237,8 +241,9 @@ public class ChatMessageDatabaseHelper extends SQLiteOpenHelper {
             chatMessage.setSendOrReceiver(cursor.getInt(7));
             chatMessage.setSendTime(cursor.getLong(8));
             chatMessage.setChatMessageText(cursor.getString(9));
-            chatMessage.setChatMessagePhotoPath(cursor.getString(10));
-            chatMessage.setChatMessageVideoPath(cursor.getString(11));
+            chatMessage.setChatMessageVoicePath(cursor.getString(10));
+            chatMessage.setChatMessagePhotoPath(cursor.getString(11));
+            chatMessage.setChatMessageVideoPath(cursor.getString(12));
             chatMessageList.add(chatMessage);
         }
         cursor.close(); // 查询完毕，关闭游标

@@ -5,31 +5,30 @@
 package cn.csu.software.wechat.adapter;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import cn.csu.software.wechat.R;
+import cn.csu.software.wechat.adapter.holder.ChatMessageBaseViewHolder;
+import cn.csu.software.wechat.adapter.holder.ChatMessagePhotoViewHolder;
+import cn.csu.software.wechat.adapter.holder.ChatMessageTextViewHolder;
+import cn.csu.software.wechat.adapter.holder.ChatMessageVoiceViewHolder;
+import cn.csu.software.wechat.adapter.holder.MediaPlayerHolder;
 import cn.csu.software.wechat.entity.ChatMessage;
-import cn.csu.software.wechat.constant.ConstantData;
-import cn.csu.software.wechat.util.BitmapUtil;
 import cn.csu.software.wechat.util.FileProcessUtil;
 import cn.csu.software.wechat.util.LogUtil;
 import cn.csu.software.wechat.widget.ZoomImageView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,13 +49,19 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
 
     private final static int ITEM_TYPE_PHOTO_RIGHT = 4;
 
-    private final static int ITEM_TYPE_VIDEO_RIGHT = 5;
+    private final static int ITEM_TYPE_VOICE_LEFT = 5;
+
+    private final static int ITEM_TYPE_VOICE_RIGHT = 6;
 
     private int mPosition;
+
+    private ImageView mLastImageView;
 
     private Context mContext;
 
     private LayoutInflater mInflater;
+
+    private  OnItemClickListener mOnItemClickListener;
 
     List<ChatMessage> mChatMessageList = new ArrayList<>();
 
@@ -78,55 +83,57 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         } else if (viewType == ITEM_TYPE_PHOTO_LEFT){
             itemView = mInflater.inflate(R.layout.item_chat_photo_left, parent, false);
             return new LeftPhotoViewHolder(itemView);
-        } else {
+        } else if (viewType == ITEM_TYPE_PHOTO_RIGHT){
             itemView = mInflater.inflate(R.layout.item_chat_photo_right, parent, false);
             return new RightPhotoViewHolder(itemView);
+        } else if (viewType == ITEM_TYPE_VOICE_LEFT) {
+            itemView = mInflater.inflate(R.layout.item_chat_voice_left, parent, false);
+            return new LeftVoiceViewHolder(itemView);
+        } else {
+            itemView = mInflater.inflate(R.layout.item_chat_voice_right, parent, false);
+            return new RightVoiceViewHolder(itemView);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        if (viewHolder instanceof LeftTextViewHolder) {
-            LeftTextViewHolder leftTextViewHolder = (LeftTextViewHolder) viewHolder;
-            if (position == 0) {
-                leftTextViewHolder.mHeaderRelativeLayout.setVisibility(View.VISIBLE);
-            } else {
-                leftTextViewHolder.mHeaderRelativeLayout.setVisibility(View.GONE);
+        if (!(viewHolder instanceof ChatMessageBaseViewHolder)) {
+            return;
+        }
+        ChatMessageBaseViewHolder chatMessageBaseViewHolder = (ChatMessageBaseViewHolder) viewHolder;
+        Bitmap avatarBitmap = null;
+        try {
+            avatarBitmap = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getAvatarPath());
+        } catch (IOException e) {
+            LogUtil.e(TAG, "get avatar bitmap error %s", e);
+        }
+        chatMessageBaseViewHolder.mAvatarImageView.setImageBitmap(avatarBitmap);
+        if (position == 0) {
+            chatMessageBaseViewHolder.mHeaderRelativeLayout.setVisibility(View.VISIBLE);
+        } else {
+            chatMessageBaseViewHolder.mHeaderRelativeLayout.setVisibility(View.GONE);
+        }
+        if (chatMessageBaseViewHolder instanceof ChatMessageTextViewHolder) {
+            ChatMessageTextViewHolder chatMessageTextViewHolder = (ChatMessageTextViewHolder) chatMessageBaseViewHolder;
+            chatMessageTextViewHolder.mTextView.setText(mChatMessageList.get(position).getChatMessageText());
+        } else if (chatMessageBaseViewHolder instanceof ChatMessagePhotoViewHolder) {
+            ChatMessagePhotoViewHolder chatMessagePhotoViewHolder = (ChatMessagePhotoViewHolder) chatMessageBaseViewHolder;
+            Bitmap bitmap = null;
+            try {
+                bitmap = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getChatMessagePhotoPath());
+            } catch (IOException e) {
+                LogUtil.e(TAG, "get photo bitmap error %s", e);
             }
-            leftTextViewHolder.mTextView.setText(mChatMessageList.get(position).getChatMessageText());
-            Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getAvatarPath());
             if (bitmap != null) {
-                leftTextViewHolder.mAvatarImageView.setImageBitmap(bitmap);
-            }
-        } else if (viewHolder instanceof RightTextViewHolder) {
-            RightTextViewHolder rightTextViewHolder = (RightTextViewHolder) viewHolder;
-            if (position == 0) {
-                rightTextViewHolder.mHeaderRelativeLayout.setVisibility(View.VISIBLE);
-            } else {
-                rightTextViewHolder.mHeaderRelativeLayout.setVisibility(View.GONE);
-            }
-            rightTextViewHolder.mTextView.setText(mChatMessageList.get(position).getChatMessageText());
-            Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getAvatarPath());
-            if (bitmap != null) {
-                rightTextViewHolder.mAvatarImageView.setImageBitmap(bitmap);
-            }
-        } else if (viewHolder instanceof LeftPhotoViewHolder) {
-            LeftPhotoViewHolder leftPhotoViewHolder = (LeftPhotoViewHolder) viewHolder;
-            if (position == 0) {
-                leftPhotoViewHolder.mHeaderRelativeLayout.setVisibility(View.VISIBLE);
-            } else {
-                leftPhotoViewHolder.mHeaderRelativeLayout.setVisibility(View.GONE);
-            }
-            final Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getChatMessagePhotoPath());
-            if (bitmap != null) {
-                leftPhotoViewHolder.mImageView.setImageBitmap(bitmap);
-                leftPhotoViewHolder.mImageView.setOnClickListener(new View.OnClickListener() {
+                chatMessagePhotoViewHolder.mImageView.setImageBitmap(bitmap);
+                final Bitmap finalBitmap = bitmap;
+                chatMessagePhotoViewHolder.mImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        View popupWindowView = LayoutInflater.from(mContext).inflate(R.layout.item_popup_window_image,
+                        @SuppressLint("InflateParams") View popupWindowView = LayoutInflater.from(mContext).inflate(R.layout.item_popup_window_image,
                             null, false);
                         ZoomImageView imageView = popupWindowView.findViewById(R.id.iv_popup_image);
-                        imageView.setImageBitmap(bitmap);
+                        imageView.setImageBitmap(finalBitmap);
                         final PopupWindow popupWindow = new PopupWindow(popupWindowView,
                             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
                         popupWindow.setClippingEnabled(false);
@@ -134,42 +141,43 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
                     }
                 });
             }
-            Bitmap avatar = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getAvatarPath());
-            if (avatar != null) {
-                leftPhotoViewHolder.mAvatarImageView.setImageBitmap(avatar);
-            }
-        } else if (viewHolder instanceof RightPhotoViewHolder) {
-            RightPhotoViewHolder rightPhotoViewHolder = (RightPhotoViewHolder) viewHolder;
-            if (position == 0) {
-                rightPhotoViewHolder.mHeaderRelativeLayout.setVisibility(View.VISIBLE);
-            } else {
-                rightPhotoViewHolder.mHeaderRelativeLayout.setVisibility(View.GONE);
-            }
-            final Bitmap bitmap = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getChatMessagePhotoPath());
-            if (bitmap != null) {
-                rightPhotoViewHolder.mImageView.setImageBitmap(bitmap);
-                rightPhotoViewHolder.mImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        View popupWindowView = LayoutInflater.from(mContext).inflate(R.layout.item_popup_window_image,
-                            null, false);
-                        ZoomImageView imageView = popupWindowView.findViewById(R.id.iv_popup_image);
-                        imageView.setImageBitmap(bitmap);
-                        final PopupWindow popWindow = new PopupWindow(popupWindowView,
-                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
-                        popWindow.setClippingEnabled(false);
-                        popWindow.showAsDropDown(view);
+        } else if (chatMessageBaseViewHolder instanceof ChatMessageVoiceViewHolder){
+            ChatMessageVoiceViewHolder chatMessageVoiceViewHolder = (ChatMessageVoiceViewHolder) chatMessageBaseViewHolder;
+            chatMessageVoiceViewHolder.mTextView.setText(mChatMessageList.get(position).getChatMessageText() + '"');
+            final String voicePath = mChatMessageList.get(position).getChatMessageVoicePath();
+            final ImageView imageView = chatMessageVoiceViewHolder.mImageView;
+            LogUtil.i(TAG, "prepare position %s, voice %s", position, voicePath);
+            chatMessageVoiceViewHolder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final MediaPlayerHolder mediaPlayerHolder = MediaPlayerHolder.getMediaPlayerHolder(mContext);
+                    mediaPlayerHolder.reset();
+                    mediaPlayerHolder.setPlaybackInfoListener(new MediaPlayerHolder.PlaybackInfoListener() {
+                        @Override
+                        public void onPlaybackCompleted() {
+                            imageView.setBackgroundResource(R.mipmap.audio_animation_list_right_3);
+                        }
+
+                        @Override
+                        public void onPlaybackInterrupt() {
+                            mLastImageView.setBackgroundResource(R.mipmap.audio_animation_list_right_3);
+                        }
+                    });
+                    try {
+                        mLastImageView = imageView;
+                        mediaPlayerHolder.loadMedia(voicePath);
+                        mediaPlayerHolder.play();
+                        imageView.setBackgroundResource(R.drawable.audio_animation_right_list);
+                        AnimationDrawable drawable = (AnimationDrawable) imageView.getBackground();
+                        drawable.start();
+
+                    } catch (IOException e) {
+                        LogUtil.e(TAG, "play media error %s", e);
                     }
-                });
-            }
-            Bitmap avatar = FileProcessUtil.getBitmap(mContext, mChatMessageList.get(position).getAvatarPath());
-            if (avatar != null) {
-                rightPhotoViewHolder.mAvatarImageView.setImageBitmap(avatar);
-            }
+                }
+            });
         }
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -184,7 +192,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
             } else if (mChatMessageList.get(position).getChatMessageType() == ChatMessage.PHOTO_TYPE) {
                 return ITEM_TYPE_PHOTO_RIGHT;
             } else {
-                return ITEM_TYPE_VIDEO_RIGHT;
+                return ITEM_TYPE_VOICE_RIGHT;
             }
         } else {
             if (mChatMessageList.get(position).getChatMessageType() == ChatMessage.TEXT_TYPE) {
@@ -192,7 +200,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
             } else if (mChatMessageList.get(position).getChatMessageType() == ChatMessage.PHOTO_TYPE) {
                 return ITEM_TYPE_PHOTO_LEFT;
             } else {
-                return ITEM_TYPE_VIDEO_RIGHT;
+                return ITEM_TYPE_VOICE_LEFT;
             }
         }
     }
@@ -208,16 +216,16 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
-    public class LeftTextViewHolder extends RecyclerView.ViewHolder {
-        private TextView mTextView;
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
+    }
 
-        private ImageView mAvatarImageView;
+    public interface OnItemClickListener{
+        void onItemClick(View view, ChatMessage chatMessage);
+    }
 
-        private View mItemView;
-
-        private RelativeLayout mHeaderRelativeLayout;
-
-        public LeftTextViewHolder(View itemView) {
+    public class LeftTextViewHolder extends ChatMessageTextViewHolder {
+        LeftTextViewHolder(View itemView) {
             super(itemView);
             mItemView = itemView;
             mTextView = itemView.findViewById(R.id.tv_chat_left);
@@ -226,16 +234,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public class RightTextViewHolder extends RecyclerView.ViewHolder {
-        private TextView mTextView;
-
-        private ImageView mAvatarImageView;
-
-        private View mItemView;
-
-        private RelativeLayout mHeaderRelativeLayout;
-
-        public RightTextViewHolder(View itemView) {
+    public class RightTextViewHolder extends ChatMessageTextViewHolder {
+        RightTextViewHolder(View itemView) {
             super(itemView);
             mItemView = itemView;
             mTextView = itemView.findViewById(R.id.tv_chat_right);
@@ -244,16 +244,19 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public class RightPhotoViewHolder extends RecyclerView.ViewHolder {
-        private ImageView mImageView;
 
-        private ImageView mAvatarImageView;
+    public class LeftPhotoViewHolder extends ChatMessagePhotoViewHolder {
+        LeftPhotoViewHolder(View itemView) {
+            super(itemView);
+            mItemView = itemView;
+            mImageView = itemView.findViewById(R.id.iv_chat_photo_left);
+            mAvatarImageView = itemView.findViewById(R.id.iv_avatar_photo_left);
+            mHeaderRelativeLayout = itemView.findViewById(R.id.rl_blank_photo_left_top);
+        }
+    }
 
-        private View mItemView;
-
-        private RelativeLayout mHeaderRelativeLayout;
-
-        public RightPhotoViewHolder(View itemView) {
+    public class RightPhotoViewHolder extends ChatMessagePhotoViewHolder {
+        RightPhotoViewHolder(View itemView) {
             super(itemView);
             mItemView = itemView;
             mImageView = itemView.findViewById(R.id.iv_chat_photo_right);
@@ -262,21 +265,27 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public class LeftPhotoViewHolder extends RecyclerView.ViewHolder {
-        private ImageView mImageView;
-
-        private ImageView mAvatarImageView;
-
-        private View mItemView;
-
-        private RelativeLayout mHeaderRelativeLayout;
-
-        public LeftPhotoViewHolder(View itemView) {
+    public class LeftVoiceViewHolder extends ChatMessageVoiceViewHolder {
+        LeftVoiceViewHolder(View itemView) {
             super(itemView);
             mItemView = itemView;
-            mImageView = itemView.findViewById(R.id.iv_chat_photo_left);
-            mAvatarImageView = itemView.findViewById(R.id.iv_avatar_photo_left);
-            mHeaderRelativeLayout = itemView.findViewById(R.id.rl_blank_photo_left_top);
+            mImageView = itemView.findViewById(R.id.iv_chat_voice_left);
+            mAvatarImageView = itemView.findViewById(R.id.iv_avatar_voice_left);
+            mHeaderRelativeLayout = itemView.findViewById(R.id.rl_blank_voice_left_top);
+            mTextView = itemView.findViewById(R.id.tv_chat_voice_left);
+            mLinearLayout = itemView.findViewById(R.id.ll_chat_voice_left);
+        }
+    }
+
+    public class RightVoiceViewHolder extends ChatMessageVoiceViewHolder {
+        RightVoiceViewHolder(View itemView) {
+            super(itemView);
+            mItemView = itemView;
+            mImageView = itemView.findViewById(R.id.iv_chat_voice_right);
+            mAvatarImageView = itemView.findViewById(R.id.iv_avatar_voice_right);
+            mHeaderRelativeLayout = itemView.findViewById(R.id.rl_blank_voice_right_top);
+            mTextView = itemView.findViewById(R.id.tv_chat_voice_right);
+            mLinearLayout = itemView.findViewById(R.id.ll_chat_voice_right);
         }
     }
 }

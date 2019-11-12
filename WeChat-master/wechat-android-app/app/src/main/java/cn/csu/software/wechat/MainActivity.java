@@ -41,6 +41,7 @@ import cn.csu.software.wechat.util.FileProcessUtil;
 import cn.csu.software.wechat.util.LogUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -178,7 +179,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 + File.separator + ConstantData.AVATAR_DIRECTORY + File.separator + name + ConstantData.EXAMPLE_EXTENSION_NAME;
             Bitmap bitmap = FileProcessUtil.getAssetsFileBitmap(mContext, avatarSourcePath);
             if (bitmap != null) {
-                BitmapUtil.saveImg(avatarTargetPath, bitmap);
+                try {
+                    BitmapUtil.saveImg(avatarTargetPath, bitmap);
+                } catch (IOException e) {
+                    LogUtil.e(TAG, "save image error");
+                }
             }
         }
 

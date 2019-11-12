@@ -11,6 +11,7 @@ import android.graphics.Matrix;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -32,24 +33,12 @@ public class BitmapUtil {
      * @param imagePath 图片路径
      * @param bitmap 图片
      */
-    public static void saveImg(String imagePath, Bitmap bitmap) {
+    public static void saveImg(String imagePath, Bitmap bitmap) throws IOException {
         File file = new File(imagePath);
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-        } catch (IOException e) {
-            LogUtil.e(TAG, "save image error");
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                LogUtil.e(TAG, "output stream close error");
-            }
-        }
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+        fileOutputStream.flush();
+        fileOutputStream.close();
     }
 
     /**

@@ -14,6 +14,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,11 +33,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.adapter.ChatMessageAdapter;
+import cn.csu.software.wechat.adapter.holder.MediaPlayerHolder;
 import cn.csu.software.wechat.entity.ChatMessage;
 import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
@@ -46,8 +49,10 @@ import cn.csu.software.wechat.service.SocketService;
 import cn.csu.software.wechat.util.BitmapUtil;
 import cn.csu.software.wechat.util.FileProcessUtil;
 import cn.csu.software.wechat.util.LogUtil;
+import cn.csu.software.wechat.widget.RecordButton;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 消息界面
@@ -55,7 +60,7 @@ import java.io.File;
  * @author huangjishun 874904407@qq.com
  * @since 2019-10-19
  */
-public class ChatActivity extends Activity implements TextWatcher, View.OnClickListener, KeyboardChangeListener.KeyBoardListener {
+public class ChatActivity extends Activity implements TextWatcher, View.OnClickListener, KeyboardChangeListener.KeyBoardListener, RecordButton.OnFinishedRecordListener {
     private static final String TAG = ChatActivity.class.getSimpleName();
 
     private static final int IMAGE_REQUEST_CODE = 1;
@@ -78,7 +83,9 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
 
     private TextView mReceiverNameTextView;
 
-    private ImageButton mVoiceButton;
+    private ImageView mVoiceButton;
+
+    private RecordButton mRecordButton;
 
     private Button mSendButton;
 
@@ -172,6 +179,10 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         mSendButton.setOnClickListener(this);
         mMoreButton = findViewById(R.id.bt_more);
         mMoreButton.setOnClickListener(this);
+        mVoiceButton = findViewById(R.id.bt_voice);
+        mVoiceButton.setOnClickListener(this);
+        mRecordButton = findViewById(R.id.bt_record);
+        mRecordButton.setOnFinishedRecordListener(this);
         mExpressionButton = findViewById(R.id.bt_expression);
         mEditText = findViewById(R.id.et_input);
         mEditText.addTextChangedListener(this);
@@ -232,24 +243,30 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
     @Override
     public void onClick(View view) {
         if (mMessage != null && !"".equals(mMessage) && view.getId() == R.id.bt_send) {
-            mSendTime = System.currentTimeMillis();
-            ChatMessage chatMessage = new ChatMessage(ConstantData.MY_NAME.hashCode(), mUserInfo.getAccount(),
-                ConstantData.MY_NAME, mUserInfo.getUsername(), mMyAvatarPath, 0, ChatMessage.TEXT_TYPE,
-                ChatMessage.SEND_TYPE, mSendTime, "", "", "");
-            chatMessage.setChatMessageText(mMessage);
+            ChatMessage chatMessage = createChatMessage(ChatMessage.TEXT_TYPE, mMessage, "", "", "");
             mUserInfo.setLastMessage(mMessage);
-            mUserInfo.setLastMessageSendTime(mSendTime);
+            mUserInfo.setLastMessageSendTime(chatMessage.getSendTime());
             addItem(chatMessage);
             sendMessageBinderService.sendMessage(chatMessage, mUserInfo);
-
             mEditText.setText("");
         } else if (view.getId() == R.id.bt_more) {
             hideKeyboard(view.getWindowToken());
             mScrollRecyclerViewHandler.sendEmptyMessage(0);
             mMoreRelativeLayout.setVisibility(View.VISIBLE);
         } else if (view.getId() == R.id.rl_photograph_button) {
-            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intent, IMAGE_REQUEST_CODE);
+        } else if (view.getId() == R.id.bt_voice) {
+            if (mRecordButton.isShown()) {
+                mRecordButton.setVisibility(View.GONE);
+                mEditText.setVisibility(View.VISIBLE);
+                mVoiceButton.setImageResource(R.mipmap.icon_voice);
+
+            } else {
+                mRecordButton.setVisibility(View.VISIBLE);
+                mEditText.setVisibility(View.GONE);
+                mVoiceButton.setImageResource(R.drawable.ic_keyboard);
+            }
         }
     }
 
@@ -277,16 +294,23 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
                     cursor.moveToFirst();
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String path = cursor.getString(columnIndex);  //获取照片路径
-                    Bitmap bitmap = FileProcessUtil.getBitmap(mContext, path);
-                    LogUtil.i(TAG, "bitmap", bitmap);
-                    Bitmap compressionBitmap = BitmapUtil.zoomImg(bitmap);
-                    String compressionImagePath = mCompressionPath + File.separator + System.currentTimeMillis() + ".png";
-                    BitmapUtil.saveImg(compressionImagePath, compressionBitmap);
-                    ChatMessage chatMessage = new ChatMessage(ConstantData.MY_NAME.hashCode(), mUserInfo.getAccount(),
-                        ConstantData.MY_NAME, mUserInfo.getUsername(), mMyAvatarPath, 0, ChatMessage.PHOTO_TYPE,
-                        ChatMessage.SEND_TYPE, mSendTime, "", compressionImagePath, "");
+                    Bitmap bitmap = null;
+                    String compressionImagePath = "";
+                    try {
+                        bitmap = FileProcessUtil.getBitmap(mContext, path);
+                        if (bitmap == null) {
+                            return;
+                        }
+                        Bitmap compressionBitmap = BitmapUtil.zoomImg(bitmap);
+                        compressionImagePath = mCompressionPath + File.separator + System.currentTimeMillis() + ".png";
+                        BitmapUtil.saveImg(compressionImagePath, compressionBitmap);
+                    } catch (IOException e) {
+                        LogUtil.e(TAG, "save image error");
+                    }
+
+                    ChatMessage chatMessage = createChatMessage(ChatMessage.PHOTO_TYPE, "", "", compressionImagePath, "");
                     mUserInfo.setLastMessage(ConstantData.PHOTO_MESSAGE);
-                    mUserInfo.setLastMessageSendTime(mSendTime);
+                    mUserInfo.setLastMessageSendTime(chatMessage.getSendTime());
                     addItem(chatMessage);
                     sendMessageBinderService.sendMessage(chatMessage, mUserInfo);
                 }
@@ -304,6 +328,13 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
             }
         }
         return super.dispatchTouchEvent(motionEvent);
+    }
+
+    private ChatMessage createChatMessage(int chatMessageType, String chatMessageText,  String chatMessageVoicePath, String chatMessagePhotoPath, String chatMessageVideoPath) {
+        return new ChatMessage(ConstantData.MY_NAME.hashCode(), mUserInfo.getAccount(),
+            ConstantData.MY_NAME, mUserInfo.getUsername(), mMyAvatarPath, 0, chatMessageType,
+            ChatMessage.SEND_TYPE, System.currentTimeMillis(), chatMessageText, chatMessagePhotoPath,
+            chatMessageVoicePath, chatMessageVideoPath);
     }
 
     private boolean isTouchPointInView(View view, int x, int y) {
@@ -371,6 +402,18 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         }
     }
 
+    @Override
+    public void onFinishedRecord(String voicePath, int time) {
+        LogUtil.d(TAG, "record finish");
+        File file = new File(voicePath);
+        if (file.exists()) {
+            ChatMessage chatMessage = createChatMessage(ChatMessage.VOICE_TYPE, String.valueOf(time), voicePath, "", "");
+            mUserInfo.setLastMessage(ConstantData.PHOTO_MESSAGE);
+            mUserInfo.setLastMessageSendTime(chatMessage.getSendTime());
+            addItem(chatMessage);
+            sendMessageBinderService.sendMessage(chatMessage, mUserInfo);
+        }
+    }
 
     class MessageBroadcastReceiver extends BroadcastReceiver {
         @Override

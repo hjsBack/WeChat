@@ -39,7 +39,7 @@
             android:layout_marginStart="@dimen/x_100"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="@dimen/x_92"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:paddingBottom="@dimen/x_12"
             android:paddingStart="@dimen/x_12"
             android:paddingEnd="@dimen/x_12"

@@ -157,7 +157,12 @@ public class ConstantData {
     public static final String[] PERMISSIONS = {
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
     };
 
     /**

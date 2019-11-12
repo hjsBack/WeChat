@@ -2,10 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.csu.software.wechat">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,6 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+<!--        <activity android:name=".LoginActivity">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,26 +26,17 @@
         <activity android:name=".activity.PersonalInfoActivity" />
         <activity
             android:name=".activity.ChatActivity"
-            android:windowSoftInputMode="adjustResize"/>
-
-<!--        <provider-->
-<!--            android:name=".database.provider.ChatMessageProvider"-->
-<!--            android:authorities="cn.csu.software.wechat.database.provider.ChatMessageProvider"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true" />-->
-
+            android:windowSoftInputMode="adjustResize" />
         <provider
             android:name=".database.provider.FriendChatInfoProvider"
             android:authorities="cn.csu.software.wechat.database.provider.FriendChatInfoProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".database.provider.ChatMessageProvider"
             android:authorities="cn.csu.software.wechat.database.provider.ChatMessageProvider"
             android:enabled="true"
             android:exported="true" />
-
         <provider
             android:name=".database.provider.UserInfoProvider"
             android:authorities="cn.csu.software.wechat.database.provider.UserInfoProvider"
@@ -51,5 +45,14 @@
 
         <service android:name=".service.SocketService" />
     </application>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

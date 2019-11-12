@@ -42,7 +42,7 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         init();
     }
 
-    private String mFile = getContext().getFilesDir() + "/" + "voice_" + System.currentTimeMillis() + ".mp3";
+    private String mFile;
 
 
     private OnFinishedRecordListener finishedListener;
@@ -136,6 +136,7 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
      */
     private void initDialogAndStartRecord() {
         startTime = System.currentTimeMillis();
+        mFile = getContext().getFilesDir() + "/" + "voice_" + startTime + ".mp3";
         recordDialog = new Dialog(getContext(), R.style.like_toast_dialog_style);
         // view = new ImageView(getContext());
         view = View.inflate(getContext(), R.layout.dialog_record, null);
@@ -218,6 +219,8 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         } else {
             mRecorder = new MediaRecorder();
         }
+        mThread = new ObtainDecibelThread();
+        mThread.start();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -241,7 +244,6 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
 
 
     private void stopRecording() {
-
         if (mThread != null) {
             mThread.exit();
             mThread = null;
@@ -273,16 +275,13 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
 
         @Override
         public void run() {
-            LogUtil.d(TAG, "检测到的分贝001:");
             while (running) {
                 if (mRecorder == null || !running) {
                     break;
                 }
                 // int x = recorder.getMaxAmplitude(); //振幅
                 int db = mRecorder.getMaxAmplitude() / 600;
-                LogUtil.d(TAG, "检测到的分贝002:" + mRecorder);
                 if (db != 0 && y >= 0) {
-
 
                     int f = (int) (db / 5);
                     if (f == 0)
