@@ -330,11 +330,13 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         return super.dispatchTouchEvent(motionEvent);
     }
 
-    private ChatMessage createChatMessage(int chatMessageType, String chatMessageText,  String chatMessageVoicePath, String chatMessagePhotoPath, String chatMessageVideoPath) {
+    private ChatMessage createChatMessage(int chatMessageType, String chatMessageText,
+                                          String chatMessageVoicePath, String chatMessagePhotoPath,
+                                          String chatMessageVideoPath) {
         return new ChatMessage(ConstantData.MY_NAME.hashCode(), mUserInfo.getAccount(),
-            ConstantData.MY_NAME, mUserInfo.getUsername(), mMyAvatarPath, 0, chatMessageType,
-            ChatMessage.SEND_TYPE, System.currentTimeMillis(), chatMessageText, chatMessagePhotoPath,
-            chatMessageVoicePath, chatMessageVideoPath);
+            ConstantData.MY_NAME, mUserInfo.getUsername(), mMyAvatarPath, 0,
+            chatMessageType, ChatMessage.SEND_TYPE, System.currentTimeMillis(), chatMessageText,
+            chatMessageVoicePath, chatMessagePhotoPath, chatMessageVideoPath);
     }
 
     private boolean isTouchPointInView(View view, int x, int y) {
