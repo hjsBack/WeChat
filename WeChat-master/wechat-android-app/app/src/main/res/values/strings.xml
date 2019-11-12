@@ -31,4 +31,5 @@
     <string name="add_friend">添加朋友</string>
     <string name="receive_payment">收付款</string>
     <string name="help">帮助与反馈</string>
+    <string name="account_login">账号登录</string>
 </resources>

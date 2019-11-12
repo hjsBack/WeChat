@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_centerHorizontal="true"
+    android:background="@color/layoutBackground"
+    tools:context="cn.csu.software.wechat.MainActivity">
+
+    <TextView
+        android:id="@+id/tv_account_login_title"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/x_34"
+        android:layout_marginLeft="@dimen/x_18"
+        android:layout_marginTop="@dimen/x_18"
+        android:textSize="@dimen/x_36"
+        android:textColor="#000000"
+        android:text="@string/account_login"/>
+
+    <LinearLayout
+        android:id="@+id/rl_add"
+        android:layout_width="@dimen/x_80"
+        android:layout_height="@dimen/x_70"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/selector_button_color_icon">
+
+        <TextView
+            android:id="@+id/tv_tab_name"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x_34"
+            android:layout_marginLeft="@dimen/x_18"
+            android:layout_marginTop="@dimen/x_18"
+            android:textSize="@dimen/x_36"
+            android:textColor="#000000"
+            android:text="@string/account_login"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x_05"
+        android:background="@color/blackLine"
+        android:layout_marginTop="@dimen/x_70"/>
+
+</LinearLayout>
