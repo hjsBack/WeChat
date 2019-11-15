@@ -229,7 +229,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/rl_setting_mine"
+        android:id="@+id/rl_mine_setting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/rl_address_mine"

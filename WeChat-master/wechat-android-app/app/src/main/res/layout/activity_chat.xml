@@ -14,10 +14,10 @@
 
             <ImageButton
                 android:id="@+id/bt_back"
-                android:layout_width="@dimen/x_32"
-                android:layout_height="@dimen/x_32"
+                android:layout_width="@dimen/x_24"
+                android:layout_height="@dimen/x_24"
                 android:layout_marginStart="@dimen/x_16"
-                android:layout_marginTop="@dimen/x_32"
+                android:layout_marginTop="@dimen/x_38"
                 android:background="@drawable/ic_icon_left"/>
             
             <TextView

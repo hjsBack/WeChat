@@ -122,9 +122,24 @@ public class ConstantData {
     public static final String EXTRA_CHAT_MESSAGE = "chatMessage";
 
     /**
+     * shared login name
+     */
+    public static final String SHARED_LOGIN_NAME = "login";
+
+    /**
+     * shared login name
+     */
+    public static final String SHARED_LOGIN_KEY = "isLogin";
+
+    /**
      * package name
      */
     public static final String PACKAGE_NAME = "cn.csu.software.wechat";
+
+    /**
+     * ChatActivity class name
+     */
+    public static final String ACTIVITY_CLASS_NAME_MAIN = "cn.csu.software.wechat.MainActivity";
 
     /**
      * PersonalInfoActivity class name
@@ -140,6 +155,16 @@ public class ConstantData {
      * ChatActivity class name
      */
     public static final String ACTIVITY_CLASS_NAME_CHAT = "cn.csu.software.wechat.activity.ChatActivity";
+
+    /**
+     * LoginActivity class name
+     */
+    public static final String ACTIVITY_CLASS_NAME_LOGIN = "cn.csu.software.wechat.activity.LoginActivity";
+
+    /**
+     * LoginActivity class name
+     */
+    public static final String ACTIVITY_CLASS_NAME_SETTING = "cn.csu.software.wechat.activity.SettingActivity";
 
     /**
      * ChatActivity class name

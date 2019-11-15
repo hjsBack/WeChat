@@ -6,6 +6,7 @@ package cn.csu.software.wechat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.csu.software.wechat.constant.Configure;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.ChatMessageData;
 import cn.csu.software.wechat.data.FriendChatInfoData;
@@ -89,13 +92,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = this;
-        setContentView(R.layout.activity_main);
         verifyAppPermissions();
-        createFileDirectory();
-        initView();
-        initTab();
-        initData();
-        startSocketService();
+        initConfigure();
+        isLogin();
+    }
+
+    private void initConfigure() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ConstantData.SHARED_LOGIN_NAME, MODE_PRIVATE);
+        Configure.isLogin = sharedPreferences.getBoolean(ConstantData.SHARED_LOGIN_KEY, false);
     }
 
     private void initData() {
@@ -110,6 +114,22 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private void startSocketService() {
         Intent intent = new Intent(mContext, SocketService.class);
         startService(intent);
+    }
+
+    private void isLogin() {
+        if (!Configure.isLogin) {
+            Intent intent = new Intent();
+            intent.setClassName(ConstantData.PACKAGE_NAME, ConstantData.ACTIVITY_CLASS_NAME_LOGIN);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } else {
+            setContentView(R.layout.activity_main);
+            createFileDirectory();
+            initView();
+            initTab();
+            initData();
+            startSocketService();
+        }
     }
 
     private void initView() {
@@ -195,6 +215,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             ActivityCompat.requestPermissions(MainActivity.this,  ConstantData.PERMISSIONS, 1);
         }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK :
+                moveTaskToBack(true);
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {

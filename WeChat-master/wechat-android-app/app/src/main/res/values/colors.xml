@@ -13,6 +13,8 @@
     <color name="whiteLine">#888888</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
-    <color name="chatMessageBackground">#00DA27</color>
+    <color name="chatMessageBackground">#00CC00</color>
+    <color name="greenBackground">#00B200</color>
     <color name="textColorGray">#BBBBBB</color>
+    <color name="blueFront">#007FEF</color>
 </resources>
