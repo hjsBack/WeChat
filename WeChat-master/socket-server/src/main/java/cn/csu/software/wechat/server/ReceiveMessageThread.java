@@ -44,6 +44,7 @@ public class ReceiveMessageThread implements Runnable {
             }
         } catch (IOException | ClassNotFoundException e) {
             logger.warn("a client close");
+            messageListener.onDisConnectListener();
         } finally {
             try {
                 objectInputStream.close();
@@ -71,5 +72,10 @@ public class ReceiveMessageThread implements Runnable {
          * @param socketData 消息内容
          */
         void onMessageListener(SocketData socketData);
+
+        /**
+         * 断开连接回调函数
+         */
+        void onDisConnectListener();
     }
 }

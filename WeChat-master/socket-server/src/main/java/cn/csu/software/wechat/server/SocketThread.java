@@ -31,6 +31,14 @@ public class SocketThread implements Runnable, ReceiveMessageThread.MessageListe
     }
 
     private void sendMessage(SocketData socketData) throws IOException {
+        if (!SocketQueue.getSocketMap().containsKey(socketData.getReceiverAccount())) {
+            reBackMessage(socketData);
+        } else {
+            SocketQueue.getSocketMap().get(account).reBackMessage(socketData);
+        }
+    }
+
+    private void backMessage(SocketData socketData) throws IOException {
         objectOutputStream.writeObject(socketData);
     }
 
@@ -38,12 +46,22 @@ public class SocketThread implements Runnable, ReceiveMessageThread.MessageListe
     public void onMessageListener(SocketData socketData) {
         logger.info("get message from [" + socket.getInetAddress() + "]: " + socketData.toString());
         try {
-            socketData.setTextMessage("receive the message from [" + socket.getInetAddress() + "] "
-                    + socketData.getTextMessage());
-            sendMessage(socketData);
+            if (socketData.getMessageType() == -1) {
+                account = socketData.getSenderAccount();
+                SocketQueue.getSocketMap().put(account, this);
+            } else {
+                socketData.setTextMessage("receive the message from [" + socket.getInetAddress() + "] "
+                        + socketData.getTextMessage());
+                sendMessage(socketData);
+            }
         } catch (IOException e) {
             logger.error("send message error");
         }
+    }
+
+    @Override
+    public void onDisconnectListener() {
+        SocketQueue.getSocketMap().remove(account);
     }
 
     @Override
