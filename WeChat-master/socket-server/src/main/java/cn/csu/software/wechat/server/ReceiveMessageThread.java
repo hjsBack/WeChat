@@ -48,7 +48,6 @@ public class ReceiveMessageThread implements Runnable {
         } finally {
             try {
                 objectInputStream.close();
-                socket.close();
             } catch (IOException e) {
                 logger.error("input stream close error");
             }

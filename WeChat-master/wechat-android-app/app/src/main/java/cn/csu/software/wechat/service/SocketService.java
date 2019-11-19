@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
+import cn.csu.software.wechat.constant.Configure;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.ChatMessageData;
 import cn.csu.software.wechat.data.FriendChatInfoData;

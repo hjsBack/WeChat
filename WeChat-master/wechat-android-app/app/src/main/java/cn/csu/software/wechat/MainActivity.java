@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private void initConfigure() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConstantData.SHARED_LOGIN_NAME, MODE_PRIVATE);
         Configure.setIsLogin(sharedPreferences.getBoolean(ConstantData.SHARED_LOGIN_KEY, false));
+        Configure.setMyAccount(sharedPreferences.getInt(ConstantData.SHARED_ACCOUNT_KEY, 0));
     }
 
     private void initData() {

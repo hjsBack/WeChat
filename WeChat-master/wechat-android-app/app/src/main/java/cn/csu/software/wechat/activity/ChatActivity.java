@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.adapter.ChatMessageAdapter;
+import cn.csu.software.wechat.constant.Configure;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.ChatMessageData;
 import cn.csu.software.wechat.entity.ChatMessage;
@@ -325,7 +326,7 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
     private ChatMessage createChatMessage(int chatMessageType, String chatMessageText,
                                           String chatMessageVoicePath, String chatMessagePhotoPath,
                                           String chatMessageVideoPath) {
-        return new ChatMessage(ConstantData.MY_NAME.hashCode(), mUserInfo.getAccount(),
+        return new ChatMessage(Configure.getMyAccount(), mUserInfo.getAccount(),
             ConstantData.MY_NAME, mUserInfo.getUsername(), mMyAvatarPath, 0,
             chatMessageType, ChatMessage.SEND_TYPE, System.currentTimeMillis(), chatMessageText,
             chatMessageVoicePath, chatMessagePhotoPath, chatMessageVideoPath);

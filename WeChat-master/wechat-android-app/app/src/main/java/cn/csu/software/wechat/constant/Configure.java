@@ -9,6 +9,8 @@ package cn.csu.software.wechat.constant;
 public class Configure {
     private static boolean isLogin = false;
 
+    private static int myAccount;
+
     private Configure() {
     }
 
@@ -18,5 +20,13 @@ public class Configure {
 
     public static void setIsLogin(boolean isLogin) {
         Configure.isLogin = isLogin;
+    }
+
+    public static int getMyAccount() {
+        return myAccount;
+    }
+
+    public static void setMyAccount(int myAccount) {
+        Configure.myAccount = myAccount;
     }
 }

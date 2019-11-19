@@ -1,5 +1,6 @@
 package cn.csu.software.wechat.socket;
 
+import cn.csu.software.wechat.constant.Configure;
 import cn.csu.software.wechat.entity.SocketData;
 import cn.csu.software.wechat.util.LogUtil;
 
@@ -66,6 +67,17 @@ public class SocketClient implements Runnable, ReceiveMessageThread.MessageListe
         objectOutputStream.writeObject(socketData);
     }
 
+    private void sendFirstMessage() {
+        SocketData socketData = new SocketData();
+        socketData.setSenderAccount(Configure.getMyAccount());
+        socketData.setMessageType(-1);
+        try {
+            objectOutputStream.writeObject(socketData);
+        } catch (IOException e) {
+            LogUtil.e(TAG, "send first message error");
+        }
+    }
+
     @Override
     public void onMessageListener(SocketData socketData) {
         socketClientListener.onSocketClientListener(socketData);
@@ -82,6 +94,7 @@ public class SocketClient implements Runnable, ReceiveMessageThread.MessageListe
         LogUtil.i(TAG, "successful connected to server: %s", socket.getInetAddress());
         ReceiveMessageThread receiveMessageThread = new ReceiveMessageThread(this.socket);
         receiveMessageThread.setMessageListener(this);
+        sendFirstMessage();
         executorService.execute(receiveMessageThread);
     }
 

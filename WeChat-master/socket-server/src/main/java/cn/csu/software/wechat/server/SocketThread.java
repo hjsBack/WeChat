@@ -25,6 +25,8 @@ public class SocketThread implements Runnable, ReceiveMessageThread.MessageListe
 
     private ObjectOutputStream objectOutputStream;
 
+    private int account;
+
     public SocketThread(Socket socket) throws IOException {
         this.socket = socket;
         objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
@@ -32,9 +34,12 @@ public class SocketThread implements Runnable, ReceiveMessageThread.MessageListe
 
     private void sendMessage(SocketData socketData) throws IOException {
         if (!SocketQueue.getSocketMap().containsKey(socketData.getReceiverAccount())) {
-            reBackMessage(socketData);
+            socketData.setTextMessage("no one online");
+            backMessage(socketData);
         } else {
-            SocketQueue.getSocketMap().get(account).reBackMessage(socketData);
+            SocketQueue.getSocketMap().get(socketData.getReceiverAccount()).backMessage(socketData);
+            socketData.setTextMessage("Has sent the message to [" + socket.getInetAddress() + "]");
+            backMessage(socketData);
         }
     }
 
@@ -50,8 +55,6 @@ public class SocketThread implements Runnable, ReceiveMessageThread.MessageListe
                 account = socketData.getSenderAccount();
                 SocketQueue.getSocketMap().put(account, this);
             } else {
-                socketData.setTextMessage("receive the message from [" + socket.getInetAddress() + "] "
-                        + socketData.getTextMessage());
                 sendMessage(socketData);
             }
         } catch (IOException e) {
@@ -60,8 +63,14 @@ public class SocketThread implements Runnable, ReceiveMessageThread.MessageListe
     }
 
     @Override
-    public void onDisconnectListener() {
+    public void onDisConnectListener() {
         SocketQueue.getSocketMap().remove(account);
+        try {
+            objectOutputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            logger.error("socket close error");
+        }
     }
 
     @Override

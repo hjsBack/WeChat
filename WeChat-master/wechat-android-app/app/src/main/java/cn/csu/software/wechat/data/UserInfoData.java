@@ -54,7 +54,7 @@ public class UserInfoData {
             LogUtil.i(TAG, "init user info");
             for (int i = 0; i < ConstantData.EXAMPLE_FRIEND_NAME.length; i++) {
                 UserInfo userInfo = new UserInfo();
-                userInfo.setAccount(ConstantData.EXAMPLE_FRIEND_NAME[i].hashCode());
+                userInfo.setAccount(ConstantData.EXAMPLE_FRIEND_ACCOUNT[i]);
                 userInfo.setUsername(ConstantData.EXAMPLE_FRIEND_NAME[i]);
                 userInfo.setRemark(ConstantData.EXAMPLE_FRIEND_NAME[i]);
                 userInfo.setEmail(ConstantData.EXAMPLE_FRIEND_NAME[i].hashCode() + "@qq.com");

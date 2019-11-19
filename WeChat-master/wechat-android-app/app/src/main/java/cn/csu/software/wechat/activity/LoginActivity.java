@@ -147,6 +147,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         SharedPreferences sharedPreferences = getSharedPreferences(ConstantData.SHARED_LOGIN_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(ConstantData.SHARED_LOGIN_KEY, true);
+        editor.putInt(ConstantData.SHARED_ACCOUNT_KEY, Integer.parseInt(mAccountEditText.getText().toString()));
         editor.apply();
     }
 
@@ -169,8 +170,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     @Override
                     public void onError(int responseCode, Exception e) {
-                        if ("admin".contentEquals(mAccountEditText.getText()) && "123456".contentEquals(mPasswordEditText.getText())) {
+                        if ("123456".contentEquals(mPasswordEditText.getText())) {
                             Configure.setIsLogin(true);
+                            Configure.setMyAccount(Integer.parseInt(mAccountEditText.getText().toString()));
                             saveConfigure();
                             Intent intent = new Intent();
                             intent.setClassName(ConstantData.PACKAGE_NAME, ConstantData.ACTIVITY_CLASS_NAME_MAIN);

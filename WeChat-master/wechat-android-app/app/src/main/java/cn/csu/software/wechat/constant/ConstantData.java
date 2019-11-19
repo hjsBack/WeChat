@@ -143,6 +143,11 @@ public class ConstantData {
     public static final String SHARED_LOGIN_KEY = "isLogin";
 
     /**
+     * shared login name
+     */
+    public static final String SHARED_ACCOUNT_KEY = "account";
+
+    /**
      * package name
      */
     public static final String PACKAGE_NAME = "cn.csu.software.wechat";
@@ -221,6 +226,12 @@ public class ConstantData {
      */
     public static final String[] EXAMPLE_FRIEND_NAME = {"黄绩顺", "刘德华","郭富城", "黎明", "张学友", "周杰伦", "许嵩",
         "胡歌", "林俊杰", "成龙", "李连杰", "李小龙", "赵薇", "霍建华"};
+
+    /**
+     * 示例初始化好友列表
+     */
+    public static final int[] EXAMPLE_FRIEND_ACCOUNT = {100, 101, 102, 103, 104, 105, 106,
+        107, 108, 109, 110, 111, 112, 113};
 
     /**
      * 示例初始化头像

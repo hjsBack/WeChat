@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import cn.csu.software.wechat.adapter.FriendChatInfoAdapter;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.FriendChatInfoData;
 import cn.csu.software.wechat.entity.FriendChatInfo;
+import cn.csu.software.wechat.util.LogUtil;
 
 import java.util.List;
 
@@ -70,7 +72,8 @@ public class TabMessageFragment extends Fragment {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConstantData.RECEIVED_MESSAGE_BROADCAST);
         mMessageBroadcastReceiver = new MessageBroadcastReceiver();
-        mContext.registerReceiver(mMessageBroadcastReceiver, intentFilter);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageBroadcastReceiver, intentFilter);
+
     }
 
     @Override
@@ -82,7 +85,7 @@ public class TabMessageFragment extends Fragment {
 
     @Override
     public void onPause() {
-        mContext.unregisterReceiver(mMessageBroadcastReceiver);
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageBroadcastReceiver);
         super.onPause();
     }
 
@@ -108,6 +111,7 @@ public class TabMessageFragment extends Fragment {
     class MessageBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            LogUtil.i(TAG, "refresh data");
             refreshData();
         }
     }

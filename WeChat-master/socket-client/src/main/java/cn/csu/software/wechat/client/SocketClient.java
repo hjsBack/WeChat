@@ -33,6 +33,8 @@ public class SocketClient implements ReceiveMessageThread.MessageListener {
 
     private Socket socket;
 
+    private ObjectOutputStream objectOutputStream;
+
     /**
      * 有参构造函数
      *
@@ -56,11 +58,19 @@ public class SocketClient implements ReceiveMessageThread.MessageListener {
         receiveMessageThread.setMessageListener(this);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(receiveMessageThread);
+        sendFirstMessage();
         sendMessage();
     }
 
+    private void sendFirstMessage() throws IOException {
+        objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
+        SocketData socketData = new SocketData();
+        socketData.setMessageType(-1);
+        socketData.setSenderAccount(101);
+        objectOutputStream.writeObject(socketData);
+    }
+
     private void sendMessage() throws IOException {
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(this.socket.getOutputStream());
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String msg = scanner.nextLine();
@@ -75,8 +85,8 @@ public class SocketClient implements ReceiveMessageThread.MessageListener {
             SocketData socketData = new SocketData();
             socketData.setTextMessage(msg);
             socketData.setMessageType(0);
-            socketData.setSenderAccount(00);
-            socketData.setReceiverAccount(00);
+            socketData.setSenderAccount(101);
+            socketData.setReceiverAccount(100);
             objectOutputStream.writeObject(socketData);
         }
     }
