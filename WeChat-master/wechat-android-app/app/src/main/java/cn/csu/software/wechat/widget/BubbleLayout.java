@@ -19,15 +19,26 @@ import cn.csu.software.wechat.R;
 /**
  * 气泡布局
  *
- * @author
- * @since
+ * @author 来自网络
+ * @since 2019-10-21
  */
 public class BubbleLayout extends RelativeLayout {
-    public static final int LEFT = 1;
-    public static final int TOP = 2;
-    public static final int RIGHT = 3;
-    public static final int BOTTOM = 4;
+    private static final int LEFT = 1;
 
+    private static final int TOP = 2;
+
+    private static final int RIGHT = 3;
+
+    private static final int BOTTOM = 4;
+
+    private static final int HALF = 2;
+
+    /**
+     * 当输入错误时，编译器给出错误提示
+     *
+     * @author 来自网络
+     * @since 2019-10-21
+     */
     @IntDef({LEFT, TOP, RIGHT, BOTTOM})
     private @interface Direction {
     }
@@ -59,60 +70,70 @@ public class BubbleLayout extends RelativeLayout {
 
     private RectF mRect;
 
+    /**
+     * 有参构造函数
+     *
+     * @param context Context
+     * @param attrs AttributeSet
+     */
     public BubbleLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
     private void init(Context context, AttributeSet attrs) {
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.BubbleLayout);
-        //背景颜色
-        int backGroundColor = ta.getColor(R.styleable.BubbleLayout_background_color, Color.WHITE);
-        //阴影颜色
-        int shadowColor = ta.getColor(R.styleable.BubbleLayout_shadow_color,
-            Color.parseColor("#999999"));
-        int defShadowSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX,
-            0, getResources().getDisplayMetrics());
-        //阴影尺寸
-        int shadowSize = ta.getDimensionPixelSize(R.styleable.BubbleLayout_shadow_size, defShadowSize);
-        mRadius = ta.getDimensionPixelSize(R.styleable.BubbleLayout_radius, 0);
-        //三角形方向
-        mDirection = ta.getInt(R.styleable.BubbleLayout_direction, BOTTOM);
-        mOffset = ta.getDimensionPixelOffset(R.styleable.BubbleLayout_offset, 0);
-        ta.recycle();
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.BubbleLayout);
+        mRadius = typedArray.getDimensionPixelSize(R.styleable.BubbleLayout_radius, 0);
+        // 三角形方向
+        mDirection = typedArray.getInt(R.styleable.BubbleLayout_direction, BOTTOM);
+        mOffset = typedArray.getDimensionPixelOffset(R.styleable.BubbleLayout_offset, 0);
 
         mBorderPaint = new Paint();
         mBorderPaint.setAntiAlias(true);
+        // 背景颜色
+        int backGroundColor = typedArray.getColor(R.styleable.BubbleLayout_background_color, Color.WHITE);
         mBorderPaint.setColor(backGroundColor);
+        int defShadowSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX,
+            0, getResources().getDisplayMetrics());
+        // 阴影尺寸
+        int shadowSize = typedArray.getDimensionPixelSize(R.styleable.BubbleLayout_shadow_size, defShadowSize);
+        // 阴影颜色
+        int shadowColor = typedArray.getColor(R.styleable.BubbleLayout_shadow_color,
+            Color.parseColor("#999999"));
         mBorderPaint.setShadowLayer(shadowSize, 0, 0, shadowColor);
+        typedArray.recycle();
 
         mPath = new Path();
         mRect = new RectF();
         mDatumPoint = new Point();
 
         setWillNotDraw(false);
-        //关闭硬件加速
+        // 关闭硬件加速
         setLayerType(LAYER_TYPE_SOFTWARE, null);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (mDatumPoint.x > 0 && mDatumPoint.y > 0)
-            switch (mDirection) {
-                case LEFT:
-                    drawLeftTriangle(canvas);
-                    break;
-                case TOP:
-                    drawTopTriangle(canvas);
-                    break;
-                case RIGHT:
-                    drawRightTriangle(canvas);
-                    break;
-                case BOTTOM:
-                    drawBottomTriangle(canvas);
-                    break;
-            }
+        if (mDatumPoint.x <= 0 && mDatumPoint.y <= 0) {
+            return;
+        }
+        switch (mDirection) {
+            case LEFT:
+                drawLeftTriangle(canvas);
+                break;
+            case TOP:
+                drawTopTriangle(canvas);
+                break;
+            case RIGHT:
+                drawRightTriangle(canvas);
+                break;
+            case BOTTOM:
+                drawBottomTriangle(canvas);
+                break;
+            default:
+                break;
+        }
     }
 
     private void drawLeftTriangle(Canvas canvas) {
@@ -122,9 +143,9 @@ public class BubbleLayout extends RelativeLayout {
         }
 
         mPath.addRoundRect(mRect, mRadius, mRadius, Path.Direction.CCW);
-        mPath.moveTo(mDatumPoint.x, mDatumPoint.y - triangularLength / 2);
-        mPath.lineTo(mDatumPoint.x - triangularLength / 2, mDatumPoint.y);
-        mPath.lineTo(mDatumPoint.x, mDatumPoint.y + triangularLength / 2);
+        mPath.moveTo(mDatumPoint.x, mDatumPoint.y - triangularLength / HALF);
+        mPath.lineTo(mDatumPoint.x - triangularLength / HALF, mDatumPoint.y);
+        mPath.lineTo(mDatumPoint.x, mDatumPoint.y + triangularLength / HALF);
         mPath.close();
         canvas.drawPath(mPath, mBorderPaint);
     }
@@ -136,9 +157,9 @@ public class BubbleLayout extends RelativeLayout {
         }
 
         mPath.addRoundRect(mRect, mRadius, mRadius, Path.Direction.CCW);
-        mPath.moveTo(mDatumPoint.x + triangularLength / 2, mDatumPoint.y);
-        mPath.lineTo(mDatumPoint.x, mDatumPoint.y - triangularLength / 2);
-        mPath.lineTo(mDatumPoint.x - triangularLength / 2, mDatumPoint.y);
+        mPath.moveTo(mDatumPoint.x + triangularLength / HALF, mDatumPoint.y);
+        mPath.lineTo(mDatumPoint.x, mDatumPoint.y - triangularLength / HALF);
+        mPath.lineTo(mDatumPoint.x - triangularLength / HALF, mDatumPoint.y);
         mPath.close();
         canvas.drawPath(mPath, mBorderPaint);
     }
@@ -150,9 +171,9 @@ public class BubbleLayout extends RelativeLayout {
         }
 
         mPath.addRoundRect(mRect, mRadius, mRadius, Path.Direction.CCW);
-        mPath.moveTo(mDatumPoint.x, mDatumPoint.y - triangularLength / 2);
-        mPath.lineTo(mDatumPoint.x + triangularLength / 2, mDatumPoint.y);
-        mPath.lineTo(mDatumPoint.x, mDatumPoint.y + triangularLength / 2);
+        mPath.moveTo(mDatumPoint.x, mDatumPoint.y - triangularLength / HALF);
+        mPath.lineTo(mDatumPoint.x + triangularLength / HALF, mDatumPoint.y);
+        mPath.lineTo(mDatumPoint.x, mDatumPoint.y + triangularLength / HALF);
         mPath.close();
         canvas.drawPath(mPath, mBorderPaint);
     }
@@ -164,9 +185,9 @@ public class BubbleLayout extends RelativeLayout {
         }
 
         mPath.addRoundRect(mRect, mRadius, mRadius, Path.Direction.CCW);
-        mPath.moveTo(mDatumPoint.x + triangularLength / 2, mDatumPoint.y);
-        mPath.lineTo(mDatumPoint.x, mDatumPoint.y + triangularLength / 2);
-        mPath.lineTo(mDatumPoint.x - triangularLength / 2, mDatumPoint.y);
+        mPath.moveTo(mDatumPoint.x + triangularLength / HALF, mDatumPoint.y);
+        mPath.lineTo(mDatumPoint.x, mDatumPoint.y + triangularLength / HALF);
+        mPath.lineTo(mDatumPoint.x - triangularLength / HALF, mDatumPoint.y);
         mPath.close();
         canvas.drawPath(mPath, mBorderPaint);
     }
@@ -183,19 +204,21 @@ public class BubbleLayout extends RelativeLayout {
         switch (mDirection) {
             case LEFT:
                 mDatumPoint.x = getPaddingLeft();
-                mDatumPoint.y = height / 2;
+                mDatumPoint.y = height / HALF;
                 break;
             case TOP:
-                mDatumPoint.x = width / 2;
+                mDatumPoint.x = width / HALF;
                 mDatumPoint.y = getPaddingTop();
                 break;
             case RIGHT:
                 mDatumPoint.x = width - getPaddingRight();
-                mDatumPoint.y = height / 2;
+                mDatumPoint.y = height / HALF;
                 break;
             case BOTTOM:
-                mDatumPoint.x = width / 2;
+                mDatumPoint.x = width / HALF;
                 mDatumPoint.y = height - getPaddingBottom();
+                break;
+            default:
                 break;
         }
 
@@ -224,6 +247,8 @@ public class BubbleLayout extends RelativeLayout {
             case TOP:
             case BOTTOM:
                 mDatumPoint.x += mOffset;
+                break;
+            default:
                 break;
         }
     }

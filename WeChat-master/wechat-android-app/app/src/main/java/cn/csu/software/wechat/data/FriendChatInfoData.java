@@ -2,21 +2,37 @@ package cn.csu.software.wechat.data;
 
 import android.content.Context;
 
-import java.util.List;
-
-import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.database.content.FriendChatInfoContent;
 import cn.csu.software.wechat.database.helper.FriendChatInfoDatabaseHelper;
+import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.util.LogUtil;
 
+import java.util.List;
+
+/**
+ * 好友聊天数据缓存
+ *
+ * @author huangjishun 874904407@qq.com
+ * @since 2019-11-11
+ */
 public class FriendChatInfoData {
     private static final String TAG = FriendChatInfoData.class.getSimpleName();
+
+    private static final int DATABASE_OPERATION_ERROR = -1;
 
     private static FriendChatInfoDatabaseHelper sDatabaseHelper;
 
     private static List<UserInfo> sUserInfoList;
 
+    private FriendChatInfoData() {
+    }
+
+    /**
+     * 初始化database helper
+     *
+     * @param context Context
+     */
     public static void initDatabaseHelper(Context context) {
         sDatabaseHelper = FriendChatInfoDatabaseHelper.getInstance(context,
                 ConstantData.DATABASE_CREATE_VISION_SECOND_TIME);
@@ -24,6 +40,9 @@ public class FriendChatInfoData {
         sDatabaseHelper.openWriteLink();
     }
 
+    /**
+     * 查询好友聊天数据
+     */
     public static void queryAllFriendChatInfo() {
         if (sDatabaseHelper == null) {
             LogUtil.e(TAG, "mChatMessageDatabaseHelper is null");
@@ -39,7 +58,7 @@ public class FriendChatInfoData {
             LogUtil.e(TAG, "mChatMessageDatabaseHelper is null");
             return;
         }
-        if (sDatabaseHelper.insert(userInfo) == -1) {
+        if (sDatabaseHelper.insert(userInfo) == DATABASE_OPERATION_ERROR) {
             LogUtil.e(TAG, "update error");
         }
         LogUtil.i(TAG, "update success");
@@ -50,12 +69,17 @@ public class FriendChatInfoData {
             LogUtil.e(TAG, "mChatMessageDatabaseHelper is null");
             return;
         }
-        if (sDatabaseHelper.update(userInfo) == -1) {
+        if (sDatabaseHelper.update(userInfo) == DATABASE_OPERATION_ERROR) {
             LogUtil.e(TAG, "update error");
         }
         LogUtil.i(TAG, "update success");
     }
 
+    /**
+     * 添加好友聊天记录
+     *
+     * @param userInfo UserInfo
+     */
     public static void addUserInfo(UserInfo userInfo) {
         boolean isContain = false;
         for (int i = 0; i < sUserInfoList.size(); i++) {

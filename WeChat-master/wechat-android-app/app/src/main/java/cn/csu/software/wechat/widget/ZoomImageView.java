@@ -16,54 +16,83 @@ import android.widget.OverScroller;
 
 /**
  * 自定义图片展示  支持双击放大，多点触碰
- * <p>
- * create by meiJia on 2019/7/26
+ *
+ * @author 来自网络
+ * @since 2019-11-12
  */
 public class ZoomImageView extends android.support.v7.widget.AppCompatImageView implements ViewTreeObserver.OnGlobalLayoutListener {
+    // TODO: 19-10-20 后续自定义ImageSwitcher，实现图片的切换
     private boolean mIsOneLoad = true;
 
-    //初始化的比例,也就是最小比例
+    // 初始化的比例,也就是最小比例
     private float mInitScale;
-    //图片最大比例
+
+    // 图片最大比例
     private float mMaxScale;
-    //双击能达到的最大比例
+
+    // 双击能达到的最大比例
     private float mMidScale;
 
     private Matrix mScaleMatrix;
-    //捕获用户多点触控
+
+    // 捕获用户多点触控
     private ScaleGestureDetector mScaleGestureDetector;
 
-    //移动
+    // 移动
     private GestureDetector gestureDetector;
 
-    //双击
-    private boolean isEnlarge = false;//是否放大
-    private ValueAnimator mAnimator; //双击缩放动画
+    // 是否放大
+    private boolean isEnlarge = false;
 
-    //滚动
+    // 双击缩放动画
+    private ValueAnimator mAnimator;
+
+    // 滚动
     private OverScroller scroller;
-    private int mCurrentX, mCurrentY;
-    private ValueAnimator translationAnimation; //惯性移动动画
 
-    //单击
-    private OnClickListener onClickListener;//单击监听
+    private int mCurrentX;
 
+    private int mCurrentY;
+
+    // 惯性移动动画
+    private ValueAnimator translationAnimation;
+
+    // 单击监听
+    private OnClickListener onClickListener;
+
+    /**
+     * 构造函数
+     *
+     * @param context Context
+     */
     public ZoomImageView(Context context) {
         this(context, null);
     }
 
+    /**
+     * 构造函数
+     *
+     * @param context Context
+     * @param attrs AttributeSet
+     */
     public ZoomImageView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    /**
+     * 构造函数
+     *
+     * @param context Context
+     * @param attrs AttributeSet
+     * @param defStyleAttr int
+     */
     public ZoomImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        //记住，一定要把ScaleType设置成ScaleType.MATRIX，否则无法缩放
+        // 记住，一定要把ScaleType设置成ScaleType.MATRIX，否则无法缩放
         setScaleType(ScaleType.MATRIX);
-
         scroller = new OverScroller(context);
         mScaleMatrix = new Matrix();
-        //手势缩放
+        // 手势缩放
         mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
@@ -77,27 +106,25 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
             }
         });
 
-        //滑动和双击监听
+        // 滑动和双击监听
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, final float distanceX, final float distanceY) {
-                //滑动监听
+                // 滑动监听
                 onTranslationImage(-distanceX, -distanceY);
                 return true;
             }
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                //双击监听
+                // 双击监听
                 onDoubleDrowScale(e.getX(), e.getY());
                 return true;
             }
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
-                //滑动惯性处理
+                // 滑动惯性处理
                 mCurrentX = (int) e2.getX();
                 mCurrentY = (int) e2.getY();
 
@@ -105,25 +132,24 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
                 if (rectF == null) {
                     return false;
                 }
-                //startX为当前图片左边界的x坐标
+                // startX为当前图片左边界的x坐标
                 int startX = mCurrentX;
                 int startY = mCurrentY;
-                int minX = 0, maxX = 0, minY = 0, maxY = 0;
-                int vX = Math.round(velocityX);
-                int vY = Math.round(velocityY);
-
-                maxX = Math.round(rectF.width());
-                maxY = Math.round(rectF.height());
+                int maxX = Math.round(rectF.width());
+                int maxY = Math.round(rectF.height());
+                int roundVelocityX = Math.round(velocityX);
+                int roundVelocityY = Math.round(velocityY);
 
                 if (startX != maxX || startY != maxY) {
-                    //调用fling方法，然后我们可以通过调用getCurX和getCurY来获得当前的x和y坐标
-                    //这个坐标的计算是模拟一个惯性滑动来计算出来的，我们根据这个x和y的变化可以模拟
-                    //出图片的惯性滑动
-                    scroller.fling(startX, startY, vX, vY, 0, maxX, 0, maxY, maxX, maxY);
+                    // 调用fling方法，然后我们可以通过调用getCurX和getCurY来获得当前的x和y坐标
+                    // 这个坐标的计算是模拟一个惯性滑动来计算出来的，我们根据这个x和y的变化可以模拟
+                    // 出图片的惯性滑动
+                    scroller.fling(startX, startY, roundVelocityX, roundVelocityY, 0, maxX, 0, maxY, maxX, maxY);
                 }
 
-                if (translationAnimation != null && translationAnimation.isStarted())
+                if (translationAnimation != null && translationAnimation.isStarted()) {
                     translationAnimation.end();
+                }
 
                 translationAnimation = ObjectAnimator.ofFloat(0, 1);
                 translationAnimation.setDuration(500);
@@ -131,17 +157,18 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
                         if (scroller.computeScrollOffset()) {
-                            //获得当前的x坐标
+                            // 获得当前的x坐标
                             int newX = scroller.getCurrX();
                             int dx = newX - mCurrentX;
                             mCurrentX = newX;
-                            //获得当前的y坐标
+                            // 获得当前的y坐标
                             int newY = scroller.getCurrY();
                             int dy = newY - mCurrentY;
                             mCurrentY = newY;
-                            //进行平移操作
-                            if (dx != 0 && dy != 0)
+                            // 进行平移操作
+                            if (dx != 0 && dy != 0) {
                                 onTranslationImage(dx, dy);
+                            }
                         }
                     }
                 });
@@ -151,13 +178,13 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                //单击事件
-                if (onClickListener != null)
+                // 单击事件
+                if (onClickListener != null) {
                     onClickListener.onClick(ZoomImageView.this);
+                }
                 return true;
             }
         });
-
     }
 
     @Override
@@ -183,18 +210,17 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
     @Override
     public void onGlobalLayout() {
         if (mIsOneLoad) {
-
-            //得到控件的宽和高
+            // 得到控件的宽和高
             int width = getWidth();
             int height = getHeight();
-
-            //获取图片,如果没有图片则直接退出
-            Drawable d = getDrawable();
-            if (d == null)
+            // 获取图片,如果没有图片则直接退出
+            Drawable drawable = getDrawable();
+            if (drawable == null) {
                 return;
-            //获取图片的宽和高
-            int dw = d.getIntrinsicWidth();
-            int dh = d.getIntrinsicHeight();
+            }
+            // 获取图片的宽和高
+            int dw = drawable.getIntrinsicWidth();
+            int dh = drawable.getIntrinsicHeight();
 
             float scale = 1.0f;
             if (dw > width && dh <= height) {
@@ -207,14 +233,14 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
                 scale = Math.min(width * 1.0f / dw, height * 1.0f / dh);
             }
 
-            //图片原始比例，图片回复原始大小时使用
+            // 图片原始比例，图片回复原始大小时使用
             mInitScale = scale;
-            //图片双击后放大的比例
+            // 图片双击后放大的比例
             mMidScale = mInitScale * 2;
-            //手势放大时最大比例
+            // 手势放大时最大比例
             mMaxScale = mInitScale * 4;
 
-            //设置移动数据,把改变比例后的图片移到中心点
+            // 设置移动数据,把改变比例后的图片移到中心点
             float translationX = width * 1.0f / 2 - dw / 2;
             float translationY = height * 1.0f / 2 - dh / 2;
 
@@ -227,28 +253,33 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return mScaleGestureDetector.onTouchEvent(event) |
-            gestureDetector.onTouchEvent(event);
+        return mScaleGestureDetector.onTouchEvent(event) | gestureDetector.onTouchEvent(event);
     }
 
-    //手势操作（缩放）
+    /**
+     * 手势操作（缩放）
+     * @param detector ScaleGestureDetector
+     */
     public void scale(ScaleGestureDetector detector) {
-
         Drawable drawable = getDrawable();
-        if (drawable == null)
+        if (drawable == null) {
             return;
+        }
 
         float scale = getScale();
-        //获取手势操作的值,scaleFactor>1说明放大，<1则说明缩小
+        // 获取手势操作的值,scaleFactor>1说明放大，<1则说明缩小
         float scaleFactor = detector.getScaleFactor();
-        //获取手势操作后的比例，当放操作后比例在[mInitScale,mMaxScale]区间时允许放大
+        // 获取手势操作后的比例，当放操作后比例在[mInitScale,mMaxScale]区间时允许放大
         mScaleMatrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
         setImageMatrix(mScaleMatrix);
         removeBorderAndTranslationCenter();
-
     }
 
-    //手势操作结束
+    /**
+     * 手势操作结束
+     *
+     * @param detector ScaleGestureDetector
+     */
     public void scaleEnd(ScaleGestureDetector detector) {
         float scale = getScale();
         scale = detector.getScaleFactor() * scale;
@@ -259,36 +290,40 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
         }
     }
 
-    //手势操作（移动）
+    // 手势操作（移动）
     private void onTranslationImage(float dx, float dy) {
-
-        if (getDrawable() == null)
+        if (getDrawable() == null) {
             return;
-
+        }
         RectF rect = getMatrixRectF();
-
-        //图片宽度小于控件宽度时不允许左右移动
-        if (rect.width() <= getWidth())
-            dx = 0.0f;
-        //图片高度小于控件宽度时，不允许上下移动
-        if (rect.height() <= getHeight())
-            dy = 0.0f;
-
-        //移动距离等于0，那就不需要移动了
-        if (dx == 0.0f && dy == 0.0f)
+        if (rect == null) {
             return;
+        }
+        // 图片宽度小于控件宽度时不允许左右移动
+        if (rect.width() <= getWidth()) {
+            dx = 0.0f;
+        }
+        // 图片高度小于控件宽度时，不允许上下移动
+        if (rect.height() <= getHeight()) {
+            dy = 0.0f;
+        }
+        // 移动距离等于0，那就不需要移动了
+        if (dx == 0.0f && dy == 0.0f) {
+            return;
+        }
 
         mScaleMatrix.postTranslate(dx, dy);
         setImageMatrix(mScaleMatrix);
-        //去除移动边界
+        // 去除移动边界
         removeBorderAndTranslationCenter();
     }
 
-    //消除控件边界和把图片移动到中间
+    // 消除控件边界和把图片移动到中间
     private void removeBorderAndTranslationCenter() {
         RectF rectF = getMatrixRectF();
-        if (rectF == null)
+        if (rectF == null) {
             return;
+        }
 
         int width = getWidth();
         int height = getHeight();
@@ -298,44 +333,45 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
         float right = rectF.right;
         float top = rectF.top;
         float bottom = rectF.bottom;
-        float translationX = 0.0f, translationY = 0.0f;
+        float translationX = 0.0f;
+        float translationY = 0.0f;
 
         if (left > 0) {
-            //左边有边界
+            // 左边有边界
             if (widthF > width) {
-                //图片宽度大于控件宽度，移动到左边贴边
+                //  图片宽度大于控件宽度，移动到左边贴边
                 translationX = -left;
             } else {
-                //图片宽度小于控件宽度，移动到中间
+                // 图片宽度小于控件宽度，移动到中间
                 translationX = width * 1.0f / 2f - (widthF * 1.0f / 2f + left);
             }
         } else if (right < width) {
-            //右边有边界
+            // 右边有边界
             if (widthF > width) {
-                //图片宽度大于控件宽度，移动到右边贴边
+                // 图片宽度大于控件宽度，移动到右边贴边
                 translationX = width - right;
             } else {
-                //图片宽度小于控件宽度，移动到中间
+                // 图片宽度小于控件宽度，移动到中间
                 translationX = width * 1.0f / 2f - (widthF * 1.0f / 2f + left);
             }
         }
 
         if (top > 0) {
-            //顶部有边界
+            // 顶部有边界
             if (heightF > height) {
-                //图片高度大于控件高度，去除顶部边界
+                // 图片高度大于控件高度，去除顶部边界
                 translationY = -top;
             } else {
-                //图片高度小于控件宽度，移动到中间
+                // 图片高度小于控件宽度，移动到中间
                 translationY = height * 1.0f / 2f - (top + heightF * 1.0f / 2f);
             }
         } else if (bottom < height) {
-            //底部有边界
+            // 底部有边界
             if (heightF > height) {
-                //图片高度大于控件高度，去除顶部边界
+                // 图片高度大于控件高度，去除顶部边界
                 translationY = height - bottom;
             } else {
-                //图片高度小于控件宽度，移动到中间
+                // 图片高度小于控件宽度，移动到中间
                 translationY = height * 1.0f / 2f - (top + heightF * 1.0f / 2f);
             }
         }
@@ -347,29 +383,31 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
     /**
      * 双击改变大小
      *
-     * @param x 点击的中心点
-     * @param y 点击的中心点
+     * @param dx 点击的中心点
+     * @param dy 点击的中心点
      */
-    private void onDoubleDrowScale(float x, float y) {
-        //如果缩放动画已经在执行，那就不执行任何事件
-        if (mAnimator != null && mAnimator.isRunning())
+    private void onDoubleDrowScale(float dx, float dy) {
+        // 如果缩放动画已经在执行，那就不执行任何事件
+        if (mAnimator != null && mAnimator.isRunning()) {
             return;
+        }
 
         float drowScale = getDoubleDrowScale();
-        //执行动画缩放，不然太难看了
-        scaleAnimation(drowScale, x, y);
+        // 执行动画缩放，不然太难看了
+        scaleAnimation(drowScale, dx, dy);
     }
 
     /**
      * 缩放动画
      *
      * @param drowScale 缩放的比例
-     * @param x         中心点
-     * @param y         中心点
+     * @param dx 中心点
+     * @param dy 中心点
      */
-    private void scaleAnimation(final float drowScale, final float x, final float y) {
-        if (mAnimator != null && mAnimator.isRunning())
+    private void scaleAnimation(final float drowScale, final float dx, final float dy) {
+        if (mAnimator != null && mAnimator.isRunning()) {
             return;
+        }
         mAnimator = ObjectAnimator.ofFloat(getScale(), drowScale);
         mAnimator.setDuration(300);
         mAnimator.setInterpolator(new AccelerateInterpolator());
@@ -377,7 +415,7 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = ((float) animation.getAnimatedValue()) / getScale();
-                mScaleMatrix.postScale(value, value, x, y);
+                mScaleMatrix.postScale(value, value, dx, dy);
                 setImageMatrix(mScaleMatrix);
                 removeBorderAndTranslationCenter();
             }
@@ -386,42 +424,40 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
         mAnimator.start();
     }
 
-
-    //返回双击后改变的大小比例(我们希望缩放误差在deviation范围内)
+    // 返回双击后改变的大小比例(我们希望缩放误差在deviation范围内)
     private float getDoubleDrowScale() {
         float deviation = 0.05f;
         float drowScale = 1.0f;
         float scale = getScale();
 
-        if (Math.abs(mInitScale - scale) < deviation)
+        if (Math.abs(mInitScale - scale) < deviation) {
             scale = mInitScale;
-        if (Math.abs(mMidScale - scale) < deviation)
+        } else if (Math.abs(mMidScale - scale) < deviation) {
             scale = mMidScale;
-        if (Math.abs(mMaxScale - scale) < deviation)
+        } else if (Math.abs(mMaxScale - scale) < deviation) {
             scale = mMaxScale;
+        }
 
         if (scale != mMidScale) {
-            //当前大小不等于mMidScale,则调整到mMidScale
+            // 当前大小不等于mMidScale,则调整到mMidScale
             drowScale = mMidScale;
             isEnlarge = scale < mMidScale;
         } else {
-            //如果等于mMidScale，则判断放大或者缩小
-            //判断是放大或者缩小，如果上次是放大，则继续放大，缩小则继续缩小
+            // 如果等于mMidScale，则判断放大或者缩小
+            // 判断是放大或者缩小，如果上次是放大，则继续放大，缩小则继续缩小
             if (isEnlarge) {
-                //放大
+                // 放大
                 drowScale = mMaxScale;
             } else {
-                //缩小
+                // 缩小
                 drowScale = mInitScale;
             }
         }
         return drowScale;
     }
 
-
-    //获取图片宽高以及左右上下边界
+    // 获取图片宽高以及左右上下边界
     private RectF getMatrixRectF() {
-
         Drawable drawable = getDrawable();
         if (drawable == null) {
             return null;
@@ -433,11 +469,10 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
         return rectF;
     }
 
-
     /**
      * 获取当前图片的缩放值
      *
-     * @return
+     * @return float
      */
     private float getScale() {
         float[] values = new float[9];
@@ -445,44 +480,41 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView 
         return values[Matrix.MSCALE_X];
     }
 
-
     /**
      * 解决和父控件滑动冲突 只要图片边界超过控件边界，返回true
      *
-     * @param direction
+     * @param direction int
      * @return true 禁止父控件滑动
      */
     @Override
     public boolean canScrollHorizontally(int direction) {
         RectF rect = getMatrixRectF();
-        if (rect == null || rect.isEmpty())
+        if (rect == null || rect.isEmpty()) {
             return false;
-
+        }
         if (direction > 0) {
             return rect.right >= getWidth() + 1;
         } else {
             return rect.left <= 0 - 1;
         }
-
     }
 
     /**
-     * 同楼上
+     * 解决和父控件滑动冲突 只要图片边界超过控件边界，返回true
      *
-     * @param direction
-     * @return
+     * @param direction int
+     * @return true 禁止父控件滑动
      */
     @Override
     public boolean canScrollVertically(int direction) {
         RectF rect = getMatrixRectF();
-        if (rect == null || rect.isEmpty())
+        if (rect == null || rect.isEmpty()) {
             return false;
-
+        }
         if (direction > 0) {
             return rect.bottom >= getHeight() + 1;
         } else {
             return rect.top <= 0 - 1;
         }
     }
-
 }

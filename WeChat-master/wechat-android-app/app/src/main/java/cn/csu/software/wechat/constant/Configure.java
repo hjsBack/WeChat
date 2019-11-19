@@ -1,11 +1,22 @@
 package cn.csu.software.wechat.constant;
 
 /**
- * 功能描述
+ * 配置文件
  *
- * @author
- * @since
+ * @author huangjishun 874904407@qq.com
+ * @since 2019-10-19
  */
 public class Configure {
-    public static boolean isLogin = false;
+    private static boolean isLogin = false;
+
+    private Configure() {
+    }
+
+    public static boolean isIsLogin() {
+        return isLogin;
+    }
+
+    public static void setIsLogin(boolean isLogin) {
+        Configure.isLogin = isLogin;
+    }
 }

@@ -1,38 +1,42 @@
 package cn.csu.software.wechat.adapter.holder;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
+
+import cn.csu.software.wechat.adapter.MediaPlayerAdapter;
 
 import java.io.IOException;
 
-import cn.csu.software.wechat.adapter.MediaPlayerAdapter;
-import cn.csu.software.wechat.util.LogUtil;
-
 /**
- * 功能描述
+ * MediaPlayerHolder
  *
- * @author
- * @since
+ * @author huangjishun 874904407@qq.com
+ * @since 2019-11-14
  */
 public class MediaPlayerHolder implements MediaPlayerAdapter {
-    private Context mContext;
-
     private static MediaPlayer sMediaPlayer;
 
     private static PlaybackInfoListener sPlaybackInfoListener;
 
     private static MediaPlayerHolder sMediaPlayerHolder;
 
+    private Context mContext;
+
+    private MediaPlayerHolder(Context context) {
+        mContext = context;
+    }
+
+    /**
+     * 静态获取实例
+     *
+     * @param context 上下文
+     * @return MediaPlayerHolder
+     */
     public static MediaPlayerHolder getMediaPlayerHolder(Context context) {
         if (sMediaPlayerHolder == null) {
             return new MediaPlayerHolder(context);
         }
         return sMediaPlayerHolder;
-    }
-
-    private MediaPlayerHolder(Context context) {
-        mContext = context;
     }
 
     private void initializeMediaPlayer() {
@@ -49,6 +53,11 @@ public class MediaPlayerHolder implements MediaPlayerAdapter {
         }
     }
 
+    /**
+     * 设置PlaybackInfoListener
+     *
+     * @param playbackInfoListener PlaybackInfoListener
+     */
     public void setPlaybackInfoListener(PlaybackInfoListener playbackInfoListener) {
         if (sPlaybackInfoListener == null) {
             sPlaybackInfoListener = playbackInfoListener;
@@ -102,9 +111,21 @@ public class MediaPlayerHolder implements MediaPlayerAdapter {
         }
     }
 
+    /**
+     * 功能描述
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-11-14
+     */
     public interface PlaybackInfoListener {
+        /**
+         * 播放完成回调函数
+         */
         void onPlaybackCompleted();
 
+        /**
+         * 播放中止回调函数
+         */
         void onPlaybackInterrupt();
     }
 }

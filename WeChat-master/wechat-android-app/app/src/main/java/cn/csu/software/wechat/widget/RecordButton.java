@@ -19,68 +19,108 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.File;
-
 import cn.csu.software.wechat.R;
+import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.util.LogUtil;
 
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * 录音按钮
+ *
+ * @author 来自网络
+ * @since 2019-11-12
+ */
 public class RecordButton extends android.support.v7.widget.AppCompatButton {
     private static final String TAG = RecordButton.class.getSimpleName();
 
-    public RecordButton(Context context) {
-        super(context);
-        init();
-    }
-
-    public RecordButton(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init();
-    }
-
-    public RecordButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    private String mFile;
-
-
-    private OnFinishedRecordListener finishedListener;
     /**
      * 最短录音时间
      **/
-    private int MIN_INTERVAL_TIME = 1000;
+    private static final int MIN_INTERVAL_TIME = 1000;
+
     /**
      * 最长录音时间
      **/
-    private int MAX_INTERVAL_TIME = 1000 * 60;
+    private static final int MAX_INTERVAL_TIME = 1000 * 60;
 
+    private Context mContext;
 
-    private static View view;
+    private View view;
 
-    private TextView mStateTV;
+    private String mFile;
 
-    private ImageView mStateIV;
+    private OnFinishedRecordListener finishedListener;
+
+    private TextView mStateTv;
+
+    private ImageView mStateIv;
 
     private MediaRecorder mRecorder;
+
     private ObtainDecibelThread mThread;
+
     private Handler volumeHandler;
 
+    private float dy;
 
-    private float y;
+    private AnimationDrawable anim;
+
+    private long startTime;
+
+    private Dialog recordDialog;
+
+    private int[] res = {R.mipmap.ic_volume_0, R.mipmap.ic_volume_1, R.mipmap.ic_volume_2,
+        R.mipmap.ic_volume_3, R.mipmap.ic_volume_4, R.mipmap.ic_volume_5, R.mipmap.ic_volume_6,
+        R.mipmap.ic_volume_7, R.mipmap.ic_volume_8};
+
+    private DialogInterface.OnDismissListener onDismiss = new DialogInterface.OnDismissListener() {
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            stopRecording();
+        }
+    };
+
+    /**
+     * 构造函数
+     *
+     * @param context Context
+     */
+    public RecordButton(Context context) {
+        super(context);
+        mContext = context;
+        init();
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param context Context
+     * @param attrs AttributeSet
+     */
+    public RecordButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mContext = context;
+        init();
+    }
+    /**
+     * 构造函数
+     *
+     * @param context Context
+     * @param attrs AttributeSet
+     * @param defStyle int
+     */
+    public RecordButton(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        mContext = context;
+        init();
+    }
 
 
     public void setOnFinishedRecordListener(OnFinishedRecordListener listener) {
         finishedListener = listener;
     }
-
-
-    private static long startTime;
-    private Dialog recordDialog;
-    private static int[] res = {R.mipmap.ic_volume_0, R.mipmap.ic_volume_1, R.mipmap.ic_volume_2,
-        R.mipmap.ic_volume_3, R.mipmap.ic_volume_4, R.mipmap.ic_volume_5, R.mipmap.ic_volume_6
-        , R.mipmap.ic_volume_7, R.mipmap.ic_volume_8};
-
 
     @SuppressLint("HandlerLeak")
     private void init() {
@@ -91,24 +131,22 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
                     stopRecording();
                     recordDialog.dismiss();
                 } else if (msg.what != -1) {
-                    mStateIV.setImageResource(res[msg.what]);
+                    mStateIv.setImageResource(res[msg.what]);
                 }
             }
         };
     }
 
-    private AnimationDrawable anim;
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
-        y = event.getY();
-        if (mStateTV != null && mStateIV != null && y < 0) {
-            mStateTV.setText("松开手指,取消发送");
-            mStateIV.setImageResource(R.mipmap.ic_volume_cancel);
-        } else if (mStateTV != null) {
-            mStateTV.setText("手指上滑,取消发送");
+        dy = event.getY();
+        if (mStateTv != null && mStateIv != null && dy < 0) {
+            mStateTv.setText("松开手指,取消发送");
+            mStateIv.setImageResource(R.mipmap.ic_volume_cancel);
+        } else if (mStateTv != null) {
+            mStateTv.setText("手指上滑,取消发送");
         }
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -118,13 +156,14 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 this.setText("按住录音");
-                if (y >= 0 && (System.currentTimeMillis() - startTime <= MAX_INTERVAL_TIME)) {
+                if (dy >= 0 && (System.currentTimeMillis() - startTime <= MAX_INTERVAL_TIME)) {
                     LogUtil.d(TAG, "结束录音:");
                     finishRecord();
-
-                } else if (y < 0) {  //当手指向上滑，会cancel
+                } else if (dy < 0) { // 当手指向上滑，会cancel
                     cancelRecord();
                 }
+                break;
+            default:
                 break;
         }
 
@@ -136,19 +175,18 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
      */
     private void initDialogAndStartRecord() {
         startTime = System.currentTimeMillis();
-        mFile = getContext().getFilesDir() + "/" + "voice_" + startTime + ".mp3";
+        mFile = mContext.getFilesDir().getPath() + File.separator + ConstantData.VOICE_DIRECTORY
+            + File.separator + startTime + ConstantData.EXTENSION_NAME_MP3;
         recordDialog = new Dialog(getContext(), R.style.like_toast_dialog_style);
-        // view = new ImageView(getContext());
         view = View.inflate(getContext(), R.layout.dialog_record, null);
-        mStateIV = view.findViewById(R.id.rc_audio_state_image);
-        mStateTV = view.findViewById(R.id.rc_audio_state_text);
-        mStateIV.setImageResource(R.drawable.anim_mic);
-        anim = (AnimationDrawable) mStateIV.getDrawable();
+        mStateIv = view.findViewById(R.id.rc_audio_state_image);
+        mStateTv = view.findViewById(R.id.rc_audio_state_text);
+        mStateIv.setImageResource(R.drawable.anim_mic);
+        anim = (AnimationDrawable) mStateIv.getDrawable();
         anim.start();
-        mStateIV.setVisibility(View.VISIBLE);
-        //mStateIV.setImageResource(R.drawable.ic_volume_1);
-        mStateTV.setVisibility(View.VISIBLE);
-        mStateTV.setText("手指上滑,取消发送");
+        mStateIv.setVisibility(View.VISIBLE);
+        mStateTv.setVisibility(View.VISIBLE);
+        mStateTv.setText("手指上滑,取消发送");
         recordDialog.setContentView(view, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -167,14 +205,11 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         if (intervalTime < MIN_INTERVAL_TIME) {
             LogUtil.d(TAG, "录音时间太短");
             volumeHandler.sendEmptyMessageDelayed(-100, 500);
-            //view.setBackgroundResource(R.drawable.ic_voice_cancel);
-            mStateIV.setImageResource(R.mipmap.ic_volume_wraning);
-            mStateTV.setText("录音时间太短");
+            mStateIv.setImageResource(R.mipmap.ic_volume_wraning);
+            mStateTv.setText("录音时间太短");
             anim.stop();
             File file = new File(mFile);
             file.delete();
-        /*    stopRecording();
-            recordDialog.dismiss();*/
             return;
         } else {
             stopRecording();
@@ -187,13 +222,13 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
             mediaPlayer.prepare();
             mediaPlayer.getDuration();
             LogUtil.d(TAG, "获取到的时长:" + mediaPlayer.getDuration() / 1000);
-        } catch (Exception e) {
-
+        } catch (IOException e) {
+            LogUtil.i(TAG, "IOException");
         }
 
-        if (finishedListener != null)
+        if (finishedListener != null) {
             finishedListener.onFinishedRecord(mFile, mediaPlayer.getDuration() / 1000);
-
+        }
     }
 
     /**
@@ -206,13 +241,9 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         file.delete();
     }
 
-    //获取类的实例
-    // ExtAudioRecorder extAudioRecorder; //压缩的录音（WAV）
-
     /**
      * 执行录音操作
      */
-    //int num = 0 ;
     private void startRecording() {
         if (mRecorder != null) {
             mRecorder.reset();
@@ -231,17 +262,13 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         try {
             mRecorder.prepare();
             mRecorder.start();
-        } catch (Exception e) {
-            LogUtil.d(TAG, "preparestart异常,重新开始录音:" + e.toString());
-            e.printStackTrace();
+        } catch (IOException e) {
+            LogUtil.d(TAG, "prepare start异常,重新开始录音:" + e.toString());
             mRecorder.release();
             mRecorder = null;
             startRecording();
         }
-       /* mThread = new  ObtainDecibelThread();
-        mThread.start();*/
     }
-
 
     private void stopRecording() {
         if (mThread != null) {
@@ -249,24 +276,20 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
             mThread = null;
         }
         if (mRecorder != null) {
-            try {
-                mRecorder.stop();//停止时没有prepare，就会报stop failed
-                mRecorder.reset();
-                mRecorder.release();
-                mRecorder = null;
-            } catch (RuntimeException pE) {
-                pE.printStackTrace();
-            } finally {
-                if (recordDialog.isShowing()) {
-                    recordDialog.dismiss();
-                }
-            }
+            mRecorder.stop(); // 停止时没有prepare，就会报stop failed
+            mRecorder.reset();
+            mRecorder.release();
+            mRecorder = null;
         }
-
     }
 
+    /**
+     * 通过音量大小调节图标
+     *
+     * @author 来自网络
+     * @since 2019-11-12
+     */
     private class ObtainDecibelThread extends Thread {
-
         private volatile boolean running = true;
 
         public void exit() {
@@ -279,10 +302,9 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
                 if (mRecorder == null || !running) {
                     break;
                 }
-                // int x = recorder.getMaxAmplitude(); //振幅
+                // 振幅
                 int db = mRecorder.getMaxAmplitude() / 600;
-                if (db != 0 && y >= 0) {
-
+                if (db != 0 && dy >= 0) {
                     int f = (int) (db / 5);
                     if (f == 0)
                         volumeHandler.sendEmptyMessage(0);
@@ -310,23 +332,25 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    LogUtil.i(TAG, "InterruptedException");
                 }
             }
         }
-
     }
 
-    private DialogInterface.OnDismissListener onDismiss = new DialogInterface.OnDismissListener() {
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            stopRecording();
-        }
-    };
-
+    /**
+     * 完成录音回调接口
+     *
+     * @author 来自网络
+     * @since 2019-11-12
+     */
     public interface OnFinishedRecordListener {
-        public void onFinishedRecord(String audioPath, int time);
+        /**
+         * 回调函数
+         *
+         * @param audioPath String
+         * @param time int
+         */
+        void onFinishedRecord(String audioPath, int time);
     }
-
-
 }

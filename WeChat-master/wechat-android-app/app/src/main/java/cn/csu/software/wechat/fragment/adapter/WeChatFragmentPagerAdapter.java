@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.fragment.adapter;
 
 import android.support.v4.app.Fragment;
@@ -11,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.List;
 
 /**
- * 消息界面
+ * Pager Adapter
  *
  * @author huangjishun 874904407@qq.com
  * @since 2019-10-19
@@ -19,8 +15,14 @@ import java.util.List;
 public class WeChatFragmentPagerAdapter extends FragmentPagerAdapter {
     private List<Fragment> fragmentList;
 
-    public WeChatFragmentPagerAdapter(List<Fragment> fragmentList, FragmentManager fm) {
-        super(fm);
+    /**
+     * 有参构造方法
+     *
+     * @param fragmentList Fragment
+     * @param fragmentManager FragmentManager
+     */
+    public WeChatFragmentPagerAdapter(List<Fragment> fragmentList, FragmentManager fragmentManager) {
+        super(fragmentManager);
         this.fragmentList = fragmentList;
     }
 

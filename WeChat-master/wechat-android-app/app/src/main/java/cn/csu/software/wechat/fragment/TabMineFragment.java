@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.fragment;
 
 import android.content.Intent;
@@ -29,13 +25,18 @@ public class TabMineFragment extends Fragment implements View.OnClickListener {
 
     private RelativeLayout mSettingRelativeLayout;
 
-    public static TabMineFragment newInstance(){
+    /**
+     * 静态工厂方法
+     * @return TabFriendFragment
+     */
+    public static TabMineFragment newInstance() {
         return new TabMineFragment();
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_tab_mine, container, false);
         initView();
         return mView;
@@ -53,6 +54,8 @@ public class TabMineFragment extends Fragment implements View.OnClickListener {
                 Intent intent = new Intent();
                 intent.setClassName(ConstantData.PACKAGE_NAME, ConstantData.ACTIVITY_CLASS_NAME_SETTING);
                 startActivity(intent);
+                break;
+            default:
                 break;
         }
     }

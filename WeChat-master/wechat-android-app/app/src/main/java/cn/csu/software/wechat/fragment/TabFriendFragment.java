@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.fragment;
 
 import android.content.Context;
@@ -17,8 +13,8 @@ import android.view.ViewGroup;
 
 import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.adapter.FriendInfoAdapter;
-import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.data.UserInfoData;
+import cn.csu.software.wechat.entity.UserInfo;
 
 /**
  * 消息界面
@@ -39,13 +35,18 @@ public class TabFriendFragment extends Fragment {
 
     private View mView;
 
+    /**
+     * 静态工厂方法
+     * @return TabFriendFragment
+     */
     public static TabFriendFragment newInstance() {
         return new TabFriendFragment();
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         mContext = getActivity();
         mView = inflater.inflate(R.layout.fragment_tab_friend, container, false);
         adapter = new FriendInfoAdapter(mContext);

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat;
 
 import android.content.Context;
@@ -12,7 +8,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -33,9 +28,9 @@ import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.ChatMessageData;
 import cn.csu.software.wechat.data.FriendChatInfoData;
 import cn.csu.software.wechat.data.UserInfoData;
-import cn.csu.software.wechat.fragment.TabMessageFragment;
 import cn.csu.software.wechat.fragment.TabCircleFragment;
 import cn.csu.software.wechat.fragment.TabFriendFragment;
+import cn.csu.software.wechat.fragment.TabMessageFragment;
 import cn.csu.software.wechat.fragment.TabMineFragment;
 import cn.csu.software.wechat.fragment.adapter.WeChatFragmentPagerAdapter;
 import cn.csu.software.wechat.service.SocketService;
@@ -99,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private void initConfigure() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConstantData.SHARED_LOGIN_NAME, MODE_PRIVATE);
-        Configure.isLogin = sharedPreferences.getBoolean(ConstantData.SHARED_LOGIN_KEY, false);
+        Configure.setIsLogin(sharedPreferences.getBoolean(ConstantData.SHARED_LOGIN_KEY, false));
     }
 
     private void initData() {
@@ -117,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
     private void isLogin() {
-        if (!Configure.isLogin) {
+        if (!Configure.isIsLogin()) {
             Intent intent = new Intent();
             intent.setClassName(ConstantData.PACKAGE_NAME, ConstantData.ACTIVITY_CLASS_NAME_LOGIN);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -157,6 +152,12 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     private void createFileDirectory() {
         LogUtil.i(TAG, "create directory");
+        String voicePath = mContext.getFilesDir().getPath() + File.separator + ConstantData.VOICE_DIRECTORY;
+        if (!FileProcessUtil.isExist(voicePath)) {
+            if (FileProcessUtil.createDirectory(voicePath)) {
+                LogUtil.i(TAG, "create voice directory success");
+            }
+        }
         String photoPath = mContext.getFilesDir().getPath() + File.separator + ConstantData.PHOTO_DIRECTORY;
         if (!FileProcessUtil.isExist(photoPath)) {
             if (FileProcessUtil.createDirectory(photoPath)) {
@@ -171,12 +172,13 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 LogUtil.i(TAG, "create avatar directory success");
             }
         }
-        String recordCompressionPath = mContext.getFilesDir().getPath() + File.separator + ConstantData.PHOTO_DIRECTORY
-            + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY + File.separator + ConstantData.PHOTO_RECORD_COMPRESSION_DIRECTORY;
+        String recordCompressionPath = mContext.getFilesDir().getPath() + File.separator
+            + ConstantData.PHOTO_DIRECTORY + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY
+            + File.separator + ConstantData.PHOTO_RECORD_COMPRESSION_DIRECTORY;
         LogUtil.i(TAG, mContext.getFilesDir().getPath());
         if (!FileProcessUtil.isExist(recordCompressionPath)) {
             if (FileProcessUtil.createDirectory(recordCompressionPath)) {
-                LogUtil.i(TAG, "create avatar directory success");
+                LogUtil.i(TAG, "create record directory success");
             }
         }
         String avatarPath = mContext.getFilesDir().getPath() + File.separator + ConstantData.PHOTO_DIRECTORY
@@ -206,22 +208,24 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 }
             }
         }
-
     }
 
     private void verifyAppPermissions() {
-        int permission = ActivityCompat.checkSelfPermission(MainActivity.this, ConstantData.EXTERNAL_STORAGE_PERMISSIONS);
+        int permission = ActivityCompat.checkSelfPermission(MainActivity.this,
+            ConstantData.EXTERNAL_STORAGE_PERMISSIONS);
         if (permission != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this,  ConstantData.PERMISSIONS, 1);
+            ActivityCompat.requestPermissions(MainActivity.this, ConstantData.PERMISSIONS, 1);
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK :
+            case KeyEvent.KEYCODE_BACK:
                 moveTaskToBack(true);
                 return true;
+            default:
+                break;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -251,13 +255,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 mViewPagerNameTextView.setText(R.string.tab_name_mine);
                 mViewPager.setCurrentItem(3);
                 break;
+            default:
+                break;
         }
         return false;
     }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
     }
 
     @Override
@@ -268,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public void onPageScrollStateChanged(int position) {
-
     }
 
     @Override

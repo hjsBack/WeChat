@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.adapter;
 
 
@@ -11,13 +7,18 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 
 import cn.csu.software.wechat.R;
+import cn.csu.software.wechat.activity.ChatActivity;
 import cn.csu.software.wechat.adapter.holder.ChatMessageBaseViewHolder;
 import cn.csu.software.wechat.adapter.holder.ChatMessagePhotoViewHolder;
 import cn.csu.software.wechat.adapter.holder.ChatMessageTextViewHolder;
@@ -41,17 +42,17 @@ import java.util.List;
 public class ChatMessageAdapter extends RecyclerView.Adapter {
     private static final String TAG = ChatMessageAdapter.class.getSimpleName();
 
-    private final static int ITEM_TYPE_TEXT_LEFT = 1;
+    private static final int ITEM_TYPE_TEXT_LEFT = 1;
 
-    private final static int ITEM_TYPE_TEXT_RIGHT = 2;
+    private static final int ITEM_TYPE_TEXT_RIGHT = 2;
 
-    private final static int ITEM_TYPE_PHOTO_LEFT = 3;
+    private static final int ITEM_TYPE_PHOTO_LEFT = 3;
 
-    private final static int ITEM_TYPE_PHOTO_RIGHT = 4;
+    private static final int ITEM_TYPE_PHOTO_RIGHT = 4;
 
-    private final static int ITEM_TYPE_VOICE_LEFT = 5;
+    private static final int ITEM_TYPE_VOICE_LEFT = 5;
 
-    private final static int ITEM_TYPE_VOICE_RIGHT = 6;
+    private static final int ITEM_TYPE_VOICE_RIGHT = 6;
 
     private int mPosition;
 
@@ -61,10 +62,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
 
     private LayoutInflater mInflater;
 
-    private  OnItemClickListener mOnItemClickListener;
+    private OnItemClickListener mOnItemClickListener;
 
-    List<ChatMessage> mChatMessageList = new ArrayList<>();
+    private List<ChatMessage> mChatMessageList = new ArrayList<>();
 
+    /**
+     * 带参构造函数
+     *
+     * @param context context
+     */
     public ChatMessageAdapter(Context context) {
         mContext = context;
         mInflater = LayoutInflater.from(mContext);
@@ -77,13 +83,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         if (viewType == ITEM_TYPE_TEXT_LEFT) {
             itemView = mInflater.inflate(R.layout.item_chat_text_left, parent, false);
             return new LeftTextViewHolder(itemView);
-        } else if (viewType == ITEM_TYPE_TEXT_RIGHT){
+        } else if (viewType == ITEM_TYPE_TEXT_RIGHT) {
             itemView = mInflater.inflate(R.layout.item_chat_text_right, parent, false);
             return new RightTextViewHolder(itemView);
-        } else if (viewType == ITEM_TYPE_PHOTO_LEFT){
+        } else if (viewType == ITEM_TYPE_PHOTO_LEFT) {
             itemView = mInflater.inflate(R.layout.item_chat_photo_left, parent, false);
             return new LeftPhotoViewHolder(itemView);
-        } else if (viewType == ITEM_TYPE_PHOTO_RIGHT){
+        } else if (viewType == ITEM_TYPE_PHOTO_RIGHT) {
             itemView = mInflater.inflate(R.layout.item_chat_photo_right, parent, false);
             return new RightPhotoViewHolder(itemView);
         } else if (viewType == ITEM_TYPE_VOICE_LEFT) {
@@ -130,7 +136,8 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
                 chatMessagePhotoViewHolder.mImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        @SuppressLint("InflateParams") View popupWindowView = LayoutInflater.from(mContext).inflate(R.layout.item_popup_window_image,
+                        @SuppressLint("InflateParams")
+                        View popupWindowView = LayoutInflater.from(mContext).inflate(R.layout.item_popup_window_image,
                             null, false);
                         ZoomImageView imageView = popupWindowView.findViewById(R.id.iv_popup_image);
                         imageView.setImageBitmap(finalBitmap);
@@ -138,15 +145,29 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
                             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
                         popupWindow.setClippingEnabled(false);
                         popupWindow.showAsDropDown(view);
+
+                        GestureDetector.SimpleOnGestureListener onGestureListener = new GestureDetector.SimpleOnGestureListener() {
+                            @Override
+                            public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
+                                popupWindow.dismiss();
+                                return super.onSingleTapConfirmed(motionEvent);
+                            }
+                        };
+                        final GestureDetector detector = new GestureDetector(mContext, onGestureListener);
+                        popupWindow.setTouchInterceptor(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View view, MotionEvent motionEvent) {
+                                return detector.onTouchEvent(motionEvent);
+                            }
+                        });
                     }
                 });
             }
-        } else if (chatMessageBaseViewHolder instanceof ChatMessageVoiceViewHolder){
+        } else if (chatMessageBaseViewHolder instanceof ChatMessageVoiceViewHolder) {
             ChatMessageVoiceViewHolder chatMessageVoiceViewHolder = (ChatMessageVoiceViewHolder) chatMessageBaseViewHolder;
             chatMessageVoiceViewHolder.mTextView.setText(mChatMessageList.get(position).getChatMessageText() + '"');
             final String voicePath = mChatMessageList.get(position).getChatMessageVoicePath();
             final ImageView imageView = chatMessageVoiceViewHolder.mImageView;
-            LogUtil.i(TAG, "prepare position %s, voice %s", position, voicePath);
             chatMessageVoiceViewHolder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -155,7 +176,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
                     mediaPlayerHolder.setPlaybackInfoListener(new MediaPlayerHolder.PlaybackInfoListener() {
                         @Override
                         public void onPlaybackCompleted() {
-                            imageView.setBackgroundResource(R.mipmap.audio_animation_list_right_3);
+                            mLastImageView.setBackgroundResource(R.mipmap.audio_animation_list_right_3);
                         }
 
                         @Override
@@ -170,7 +191,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
                         imageView.setBackgroundResource(R.drawable.audio_animation_right_list);
                         AnimationDrawable drawable = (AnimationDrawable) imageView.getBackground();
                         drawable.start();
-
                     } catch (IOException e) {
                         LogUtil.e(TAG, "play media error %s", e);
                     }
@@ -205,12 +225,22 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * 刷新列表
+     *
+     * @param list ChatMessage
+     */
     public void refreshItems(List<ChatMessage> list) {
         mChatMessageList.clear();
         mChatMessageList.addAll(list);
         notifyDataSetChanged();
     }
 
+    /**
+     * 添加Item
+     *
+     * @param message ChatMessage
+     */
     public void addItem(ChatMessage message) {
         mChatMessageList.add(message);
         notifyDataSetChanged();
@@ -220,10 +250,27 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         this.mOnItemClickListener = onItemClickListener;
     }
 
-    public interface OnItemClickListener{
+    /**
+     * 功能描述
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-11-11
+     */
+    public interface OnItemClickListener {
+        /**
+         * Item点击监听函数
+         * @param view View
+         * @param chatMessage ChatMessage
+         */
         void onItemClick(View view, ChatMessage chatMessage);
     }
 
+    /**
+     * 聊天界面左侧的文本Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-10-19
+     */
     public class LeftTextViewHolder extends ChatMessageTextViewHolder {
         LeftTextViewHolder(View itemView) {
             super(itemView);
@@ -234,6 +281,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * 聊天界面右侧的文本Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-10-19
+     */
     public class RightTextViewHolder extends ChatMessageTextViewHolder {
         RightTextViewHolder(View itemView) {
             super(itemView);
@@ -244,7 +297,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-
+    /**
+     * 聊天界面左侧的图片Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-10-29
+     */
     public class LeftPhotoViewHolder extends ChatMessagePhotoViewHolder {
         LeftPhotoViewHolder(View itemView) {
             super(itemView);
@@ -255,6 +313,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * 聊天界面右侧的图片Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-10-29
+     */
     public class RightPhotoViewHolder extends ChatMessagePhotoViewHolder {
         RightPhotoViewHolder(View itemView) {
             super(itemView);
@@ -265,6 +329,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * 聊天界面左侧的语音Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-11-11
+     */
     public class LeftVoiceViewHolder extends ChatMessageVoiceViewHolder {
         LeftVoiceViewHolder(View itemView) {
             super(itemView);
@@ -277,6 +347,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     * 聊天界面右侧的语音Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-11-11
+     */
     public class RightVoiceViewHolder extends ChatMessageVoiceViewHolder {
         RightVoiceViewHolder(View itemView) {
             super(itemView);

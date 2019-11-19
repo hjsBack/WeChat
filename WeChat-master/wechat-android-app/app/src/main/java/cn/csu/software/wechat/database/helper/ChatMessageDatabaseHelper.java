@@ -241,8 +241,8 @@ public class ChatMessageDatabaseHelper extends SQLiteOpenHelper {
             chatMessage.setSendOrReceiver(cursor.getInt(7));
             chatMessage.setSendTime(cursor.getLong(8));
             chatMessage.setChatMessageText(cursor.getString(9));
-            chatMessage.setChatMessageVoicePath(cursor.getString(10));
-            chatMessage.setChatMessagePhotoPath(cursor.getString(11));
+            chatMessage.setChatMessagePhotoPath(cursor.getString(10));
+            chatMessage.setChatMessageVoicePath(cursor.getString(11));
             chatMessage.setChatMessageVideoPath(cursor.getString(12));
             chatMessageList.add(chatMessage);
         }

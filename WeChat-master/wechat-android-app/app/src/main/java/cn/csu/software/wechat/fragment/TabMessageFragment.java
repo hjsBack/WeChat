@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.fragment;
 
 import android.content.BroadcastReceiver;
@@ -18,11 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import cn.csu.software.wechat.adapter.FriendChatInfoAdapter;
 import cn.csu.software.wechat.R;
-import cn.csu.software.wechat.entity.FriendChatInfo;
+import cn.csu.software.wechat.adapter.FriendChatInfoAdapter;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.FriendChatInfoData;
+import cn.csu.software.wechat.entity.FriendChatInfo;
 
 import java.util.List;
 
@@ -51,13 +47,18 @@ public class TabMessageFragment extends Fragment {
 
     private MessageBroadcastReceiver mMessageBroadcastReceiver;
 
-    public static TabMessageFragment newInstance(){
+    /**
+     * 静态工厂方法
+     * @return TabFriendFragment
+     */
+    public static TabMessageFragment newInstance() {
         return new TabMessageFragment();
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         mContext = getActivity();
         mView = inflater.inflate(R.layout.fragment_tab_message, container, false);
         initView();
@@ -65,7 +66,7 @@ public class TabMessageFragment extends Fragment {
         return mView;
     }
 
-    private void RegisterMessageBroadcastReceiver() {
+    private void registerMessageBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConstantData.RECEIVED_MESSAGE_BROADCAST);
         mMessageBroadcastReceiver = new MessageBroadcastReceiver();
@@ -75,7 +76,7 @@ public class TabMessageFragment extends Fragment {
     @Override
     public void onResume() {
         refreshData();
-        RegisterMessageBroadcastReceiver();
+        registerMessageBroadcastReceiver();
         super.onResume();
     }
 
@@ -98,6 +99,12 @@ public class TabMessageFragment extends Fragment {
         mAdapter.refreshItems(FriendChatInfoData.getUserInfoList());
     }
 
+    /**
+     * 接收消息监听器
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-10-19
+     */
     class MessageBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.adapter;
 
 import android.content.Context;
@@ -16,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cn.csu.software.wechat.R;
-import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
+import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.util.FileProcessUtil;
 import cn.csu.software.wechat.util.LogUtil;
 
@@ -40,6 +36,11 @@ public class FriendChatInfoAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
 
+    /**
+     * 带参构造好书
+     *
+     * @param context Context
+     */
     public FriendChatInfoAdapter(Context context) {
         mContext = context;
     }
@@ -87,18 +88,33 @@ public class FriendChatInfoAdapter extends RecyclerView.Adapter {
         return mUserInfoList.size();
     }
 
+    /**
+     * 刷新列表
+     *
+     * @param userInfoList UserInfo
+     */
     public void refreshItems(List<UserInfo> userInfoList) {
         mUserInfoList.clear();
         mUserInfoList.addAll(userInfoList);
         notifyDataSetChanged();
     }
 
-
+    /**
+     * 添加Item
+     *
+     * @param userInfo UserInfo
+     */
     public void addItem(UserInfo userInfo) {
         mUserInfoList.add(userInfo);
         notifyDataSetChanged();
     }
 
+    /**
+     * 聊天消息Item
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-10-19
+     */
     public class FriendChatInfoHolder extends RecyclerView.ViewHolder {
         private TextView mFriendNameTextView;
 
@@ -110,6 +126,11 @@ public class FriendChatInfoAdapter extends RecyclerView.Adapter {
 
         private View mFriendItemView;
 
+        /**
+         * 带参构造函数
+         *
+         * @param itemView View
+         */
         public FriendChatInfoHolder(View itemView) {
             super(itemView);
             mFriendItemView = itemView;

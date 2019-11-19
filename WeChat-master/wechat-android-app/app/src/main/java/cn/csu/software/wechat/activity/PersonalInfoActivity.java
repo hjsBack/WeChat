@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.activity;
 
 import android.app.Activity;
@@ -10,22 +6,18 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.io.IOException;
-
 import cn.csu.software.wechat.R;
-import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
-import cn.csu.software.wechat.util.BitmapUtil;
+import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.util.FileProcessUtil;
 import cn.csu.software.wechat.util.LogUtil;
+
+import java.io.IOException;
 
 /**
  * 消息界面
@@ -59,7 +51,6 @@ public class PersonalInfoActivity extends Activity implements View.OnClickListen
         setContentView(R.layout.activity_personal_info);
         initIntent();
         initView();
-
     }
 
     @Override

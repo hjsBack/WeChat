@@ -10,6 +10,17 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
+import cn.csu.software.wechat.constant.ConstantData;
+import cn.csu.software.wechat.data.ChatMessageData;
+import cn.csu.software.wechat.data.FriendChatInfoData;
+import cn.csu.software.wechat.database.helper.UserInfoDatabaseHelper;
+import cn.csu.software.wechat.entity.ChatMessage;
+import cn.csu.software.wechat.entity.SocketData;
+import cn.csu.software.wechat.entity.UserInfo;
+import cn.csu.software.wechat.socket.SocketClient;
+import cn.csu.software.wechat.util.BitmapUtil;
+import cn.csu.software.wechat.util.LogUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,18 +28,12 @@ import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import cn.csu.software.wechat.entity.ChatMessage;
-import cn.csu.software.wechat.entity.SocketData;
-import cn.csu.software.wechat.entity.UserInfo;
-import cn.csu.software.wechat.constant.ConstantData;
-import cn.csu.software.wechat.data.ChatMessageData;
-import cn.csu.software.wechat.data.FriendChatInfoData;
-import cn.csu.software.wechat.database.helper.UserInfoDatabaseHelper;
-import cn.csu.software.wechat.socket.SocketClient;
-import cn.csu.software.wechat.util.BitmapUtil;
-import cn.csu.software.wechat.util.FileProcessUtil;
-import cn.csu.software.wechat.util.LogUtil;
-
+/**
+ * socket 服务
+ *
+ * @author huangjishun 874904407@qq.com
+ * @since 2019-11-12
+ */
 public class SocketService extends Service implements SocketClient.SocketClientListener {
     private static final String TAG = SocketService.class.getSimpleName();
 
@@ -85,25 +90,43 @@ public class SocketService extends Service implements SocketClient.SocketClientL
         if (socketData.getMessageType() == ChatMessage.TEXT_TYPE) {
             chatMessage = new ChatMessage(senderUserInfo.getAccount(), receiverUserInfo.getAccount(),
                 senderUserInfo.getUsername(), receiverUserInfo.getUsername(), senderUserInfo.getAvatarPath(),
-                0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime, socketData.getTextMessage(),"", "", "");
+                0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime,
+                socketData.getTextMessage(),"", "", "");
             senderUserInfo.setLastMessage(socketData.getTextMessage());
-        } else {
+        } else if (socketData.getMessageType() == ChatMessage.PHOTO_TYPE) {
+            String imagePath = mContext.getFilesDir().getPath() + File.separator
+                + ConstantData.PHOTO_DIRECTORY + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY
+                + File.separator + sendTime + ConstantData.EXTENSION_NAME_PNG;
+            String compressionPath = mContext.getFilesDir().getPath() + File.separator
+                + ConstantData.PHOTO_DIRECTORY + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY
+                + File.separator + ConstantData.PHOTO_RECORD_COMPRESSION_DIRECTORY;
             try {
-                String imagePath = mContext.getFilesDir().getPath() + File.separator + ConstantData.PHOTO_DIRECTORY
-                    + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY + File.separator + sendTime + ".png";
-                String compressionPath = mContext.getFilesDir().getPath() + File.separator + ConstantData.PHOTO_DIRECTORY
-                    + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY + File.separator + ConstantData.PHOTO_RECORD_COMPRESSION_DIRECTORY;
                 Files.write(Paths.get(imagePath), socketData.getBytes());
                 Bitmap bitmap = BitmapFactory.decodeByteArray(socketData.getBytes(), 0, socketData.getBytes().length);
                 Bitmap compressionBitmap = BitmapUtil.zoomImg(bitmap);
-                String compressionImagePath = compressionPath + File.separator + System.currentTimeMillis() + ".png";
+                String compressionImagePath = compressionPath + File.separator + System.currentTimeMillis()
+                    + ConstantData.EXTENSION_NAME_PNG;
                 BitmapUtil.saveImg(compressionImagePath, compressionBitmap);
                 chatMessage = new ChatMessage(senderUserInfo.getAccount(), receiverUserInfo.getAccount(),
                     senderUserInfo.getUsername(), receiverUserInfo.getUsername(), senderUserInfo.getAvatarPath(),
-                    0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime, socketData.getTextMessage(), "", compressionImagePath, "");
+                    0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime,
+                    socketData.getTextMessage(), "", compressionImagePath, "");
                 senderUserInfo.setLastMessage(ConstantData.PHOTO_MESSAGE);
             } catch (IOException e) {
                 LogUtil.e(TAG, "write image error");
+            }
+        } else {
+            String voicePath = mContext.getFilesDir().getPath() + File.separator + ConstantData.VOICE_DIRECTORY
+                + File.separator + sendTime + ConstantData.EXTENSION_NAME_MP3;
+            try {
+                Files.write(Paths.get(voicePath), socketData.getBytes());
+                chatMessage = new ChatMessage(senderUserInfo.getAccount(), receiverUserInfo.getAccount(),
+                    senderUserInfo.getUsername(), receiverUserInfo.getUsername(), senderUserInfo.getAvatarPath(),
+                    0, socketData.getMessageType(), ChatMessage.RECEIVER_TYPE, sendTime,
+                    socketData.getTextMessage(), voicePath, "", "");
+                senderUserInfo.setLastMessage(ConstantData.VOICE_MESSAGE);
+            } catch (IOException e) {
+                LogUtil.e(TAG, "write mp3 error");
             }
         }
         senderUserInfo.setLastMessageSendTime(sendTime);
@@ -112,33 +135,44 @@ public class SocketService extends Service implements SocketClient.SocketClientL
         sendBroadCast(chatMessage);
     }
 
+    /**
+     * 发送消息Binder类
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-11-12
+     */
     public class SendMessageBinder extends Binder {
+        /**
+         * 发送消息
+         *
+         * @param chatMessage ChatMessage
+         * @param userInfo UserInfo
+         */
         public void sendMessage(final ChatMessage chatMessage, final UserInfo userInfo) {
             mThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                try {
-                    FriendChatInfoData.addUserInfo(userInfo);
-                    ChatMessageData.addChatMessage(chatMessage, userInfo.getAccount());
-                    SocketData socketData;
-                    if (chatMessage.getChatMessageType() == ChatMessage.TEXT_TYPE) {
-                        socketData = new SocketData(chatMessage.getReceiverAccount(),
-                            chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
-                            chatMessage.getChatMessageText(), new byte[0]);
-                    } else if (chatMessage.getChatMessageType() == ChatMessage.PHOTO_TYPE){
-                        socketData = new SocketData(chatMessage.getReceiverAccount(),
-                            chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
-                            chatMessage.getChatMessageText(), Files.readAllBytes(Paths.get(chatMessage.getChatMessagePhotoPath())));
-                    } else {
-                        socketData = new SocketData(chatMessage.getReceiverAccount(),
-                            chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
-                            chatMessage.getChatMessageText(), Files.readAllBytes(Paths.get(chatMessage.getChatMessageVoicePath())));
+                    try {
+                        FriendChatInfoData.addUserInfo(userInfo);
+                        ChatMessageData.addChatMessage(chatMessage, userInfo.getAccount());
+                        SocketData socketData;
+                        if (chatMessage.getChatMessageType() == ChatMessage.TEXT_TYPE) {
+                            socketData = new SocketData(chatMessage.getReceiverAccount(),
+                                chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
+                                chatMessage.getChatMessageText(), new byte[0]);
+                        } else if (chatMessage.getChatMessageType() == ChatMessage.PHOTO_TYPE) {
+                            socketData = new SocketData(chatMessage.getReceiverAccount(),
+                                chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
+                                chatMessage.getChatMessageText(), Files.readAllBytes(Paths.get(chatMessage.getChatMessagePhotoPath())));
+                        } else {
+                            socketData = new SocketData(chatMessage.getReceiverAccount(),
+                                chatMessage.getReceiverAccount(), chatMessage.getChatMessageType(),
+                                chatMessage.getChatMessageText(), Files.readAllBytes(Paths.get(chatMessage.getChatMessageVoicePath())));
+                        }
+                        mSocketClient.sendMessage(socketData);
+                    } catch (IOException e) {
+                        LogUtil.i(TAG, "send message error, %s", e);
                     }
-
-                    mSocketClient.sendMessage(socketData);
-                } catch (IOException e) {
-                    LogUtil.i(TAG, "send message error, %s", e);
-                }
                 }
             });
         }

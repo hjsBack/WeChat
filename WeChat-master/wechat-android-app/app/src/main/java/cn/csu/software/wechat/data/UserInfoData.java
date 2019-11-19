@@ -2,21 +2,38 @@ package cn.csu.software.wechat.data;
 
 import android.content.Context;
 
+import cn.csu.software.wechat.constant.ConstantData;
+import cn.csu.software.wechat.database.helper.UserInfoDatabaseHelper;
+import cn.csu.software.wechat.entity.UserInfo;
+import cn.csu.software.wechat.util.LogUtil;
+
 import java.io.File;
 import java.util.List;
 
-import cn.csu.software.wechat.entity.UserInfo;
-import cn.csu.software.wechat.constant.ConstantData;
-import cn.csu.software.wechat.database.helper.UserInfoDatabaseHelper;
-import cn.csu.software.wechat.util.LogUtil;
-
+/**
+ * 好友数据缓存
+ *
+ * @author huangjishun 874904407@qq.com
+ * @since 2019-11-11
+ */
 public class UserInfoData {
     private static final String TAG = UserInfoData.class.getSimpleName();
+
+    private static final int DATABASE_OPERATION_ERROR = -1;
+
 
     private static UserInfoDatabaseHelper sDatabaseHelper;
 
     private static List<UserInfo> sUserInfoList;
 
+    private UserInfoData() {
+    }
+
+    /**
+     * 初始化database helper
+     *
+     * @param context Context
+     */
     public static void initDatabaseHelper(Context context) {
         sDatabaseHelper = UserInfoDatabaseHelper.getInstance(context,
                 ConstantData.DATABASE_CREATE_VISION_SECOND_TIME);
@@ -24,6 +41,9 @@ public class UserInfoData {
         sDatabaseHelper.openWriteLink();
     }
 
+    /**
+     * 查询好友数据
+     */
     public static void queryAllFriendChatInfo() {
         if (sDatabaseHelper == null) {
             LogUtil.e(TAG, "mChatMessageDatabaseHelper is null");
@@ -61,7 +81,7 @@ public class UserInfoData {
             LogUtil.e(TAG, "mChatMessageDatabaseHelper is null");
             return;
         }
-        if (sDatabaseHelper.update(userInfo) == -1) {
+        if (sDatabaseHelper.update(userInfo) == DATABASE_OPERATION_ERROR) {
             LogUtil.e(TAG, "update error");
         }
     }

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.entity;
 
 import java.io.Serializable;
@@ -77,6 +73,11 @@ public class SocketData implements Serializable {
         this.bytes = bytes;
     }
 
+    /**
+     * to string
+     *
+     * @return String
+     */
     public String toString() {
         return "receiver account: " + getReceiverAccount() + "\n" + "sender account: " + getSenderAccount() + "\n"
                 + "message type: " + getMessageType() + "\n" + "text message: " + getTextMessage() + "\n"

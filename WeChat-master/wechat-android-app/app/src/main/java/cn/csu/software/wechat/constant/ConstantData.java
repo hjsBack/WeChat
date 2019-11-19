@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.constant;
 
 /**
@@ -17,6 +13,11 @@ public class ConstantData {
     public static final String PHOTO_DIRECTORY = "photo";
 
     /**
+     * 保存录音资源的目录
+     */
+    public static final String VOICE_DIRECTORY = "voice";
+
+    /**
      * 保存头像资源的目录
      */
     public static final String AVATAR_DIRECTORY = "avatar";
@@ -30,6 +31,16 @@ public class ConstantData {
      * 保存聊天记录图片资源的目录
      */
     public static final String PHOTO_RECORD_COMPRESSION_DIRECTORY = "compression";
+
+    /**
+     * PNG后缀
+     */
+    public static final String EXTENSION_NAME_PNG = ".png";
+
+    /**
+     * MP3后缀
+     */
+    public static final String EXTENSION_NAME_MP3 = ".mp3";
 
     /**
      * 全局查询条件
@@ -196,6 +207,11 @@ public class ConstantData {
     public static final String PHOTO_MESSAGE = "[ 图片 ]";
 
     /**
+     * photo message
+     */
+    public static final String VOICE_MESSAGE = "[ 语音 ]";
+
+    /**
      * My Name
      */
     public static final String MY_NAME = "黄绩顺";
@@ -204,14 +220,14 @@ public class ConstantData {
      * 示例初始化好友列表
      */
     public static final String[] EXAMPLE_FRIEND_NAME = {"黄绩顺", "刘德华","郭富城", "黎明", "张学友", "周杰伦", "许嵩",
-            "胡歌", "林俊杰", "成龙", "李连杰", "李小龙", "赵薇", "霍建华"};
+        "胡歌", "林俊杰", "成龙", "李连杰", "李小龙", "赵薇", "霍建华"};
 
     /**
      * 示例初始化头像
      */
     public static final String[] EXAMPLE_AVATAR_NAME = {"me", "liudehua","guofucheng", "liming", "zhangxueyou",
-            "zhoujielun", "xusong", "huge", "linjunjie", "chenglong", "lilianjie", "lixiaolong",
-            "zhaowei", "huojianhua"};
+        "zhoujielun", "xusong", "huge", "linjunjie", "chenglong", "lilianjie", "lixiaolong",
+        "zhaowei", "huojianhua"};
 
     /**
      * extra avatar name
@@ -227,4 +243,7 @@ public class ConstantData {
      * 示例初始化最后一条消息
      */
     public static final String EXAMPLE_LAST_MESSAGE_HEADER = "hello, 我是";
+
+    private ConstantData() {
+    }
 }

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.util;
 
 import android.content.Context;
@@ -10,7 +6,6 @@ import android.graphics.BitmapFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -63,14 +58,13 @@ public class FileProcessUtil {
             is = con.getAssets().open(fileName);
             bitmap = BitmapFactory.decodeStream(is);
         } catch (IOException e) {
-            LogUtil.e(TAG, "get bitmap file error! %s", e);
-            LogUtil.e(TAG, "get bitmap file error! %s", fileName);
+            LogUtil.e(TAG, "get bitmap file error!");
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    LogUtil.e(TAG, "get bitmap file error! %s", fileName);
+                    LogUtil.e(TAG, "get bitmap file error!");
                 }
             }
         }

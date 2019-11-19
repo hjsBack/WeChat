@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.activity;
 
 import android.annotation.SuppressLint;
@@ -14,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,19 +26,16 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.adapter.ChatMessageAdapter;
-import cn.csu.software.wechat.adapter.holder.MediaPlayerHolder;
-import cn.csu.software.wechat.entity.ChatMessage;
-import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.constant.ConstantData;
 import cn.csu.software.wechat.data.ChatMessageData;
+import cn.csu.software.wechat.entity.ChatMessage;
+import cn.csu.software.wechat.entity.UserInfo;
 import cn.csu.software.wechat.listener.KeyboardChangeListener;
 import cn.csu.software.wechat.service.SocketService;
 import cn.csu.software.wechat.util.BitmapUtil;
@@ -60,7 +52,8 @@ import java.io.IOException;
  * @author huangjishun 874904407@qq.com
  * @since 2019-10-19
  */
-public class ChatActivity extends Activity implements TextWatcher, View.OnClickListener, KeyboardChangeListener.KeyBoardListener, RecordButton.OnFinishedRecordListener {
+public class ChatActivity extends Activity implements TextWatcher, View.OnClickListener,
+    KeyboardChangeListener.KeyBoardListener, RecordButton.OnFinishedRecordListener, ChatMessageAdapter.OnItemClickListener {
     private static final String TAG = ChatActivity.class.getSimpleName();
 
     private static final int IMAGE_REQUEST_CODE = 1;
@@ -152,7 +145,7 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
     protected void onResume() {
         Intent intent = new Intent(mContext, SocketService.class);
         bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-        RegisterMessageBroadcastReceiver();
+        registerMessageBroadcastReceiver();
         super.onResume();
     }
 
@@ -170,6 +163,7 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
     private void initView() {
         setContentView(R.layout.activity_chat);
         mChatMessageAdapter = new ChatMessageAdapter(mContext);
+        mChatMessageAdapter.setOnItemClickListener(this);
         mRecyclerView = findViewById(R.id.recycler_chat);
         mRecyclerView.setAdapter(mChatMessageAdapter);
         mLayoutManager = new LinearLayoutManager(this);
@@ -196,7 +190,7 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         mKeyboardChangeListener.setKeyBoardListener(this);
     }
 
-    private void RegisterMessageBroadcastReceiver() {
+    private void registerMessageBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConstantData.RECEIVED_MESSAGE_BROADCAST);
         mMessageBroadcastReceiver = new MessageBroadcastReceiver();
@@ -205,9 +199,6 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
 
     private void initData() {
         if (ChatMessageData.getChatMessageMap().get(mUserInfo.getAccount()) != null) {
-            if (ChatMessageData.getChatMessageMap().get(mUserInfo.getAccount()).size() > 10) {
-                mLayoutManager.setStackFromEnd(true);
-            }
             mChatMessageAdapter.refreshItems(ChatMessageData.getChatMessageMap().get(mUserInfo.getAccount()));
         }
         mScrollRecyclerViewHandler.sendEmptyMessage(0);
@@ -216,12 +207,12 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
             + ConstantData.PHOTO_DIRECTORY + File.separator + ConstantData.AVATAR_DIRECTORY
             + File.separator + ConstantData.MY_AVATAR_NAME + ConstantData.EXAMPLE_EXTENSION_NAME;
         mCompressionPath = mContext.getFilesDir().getPath() + File.separator + ConstantData.PHOTO_DIRECTORY
-            + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY + File.separator + ConstantData.PHOTO_RECORD_COMPRESSION_DIRECTORY;
+            + File.separator + ConstantData.PHOTO_RECORD_DIRECTORY + File.separator
+            + ConstantData.PHOTO_RECORD_COMPRESSION_DIRECTORY;
     }
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
-
     }
 
     @Override
@@ -261,7 +252,6 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
                 mRecordButton.setVisibility(View.GONE);
                 mEditText.setVisibility(View.VISIBLE);
                 mVoiceButton.setImageResource(R.mipmap.icon_voice);
-
             } else {
                 mRecordButton.setVisibility(View.VISIBLE);
                 mEditText.setVisibility(View.GONE);
@@ -287,13 +277,13 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
                     }
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getContentResolver().query(uri,
-                        filePathColumn, null, null, null);//从系统表中查询指定Uri对应的照片
+                        filePathColumn, null, null, null); // 从系统表中查询指定Uri对应的照片
                     if (cursor == null) {
                         return;
                     }
                     cursor.moveToFirst();
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String path = cursor.getString(columnIndex);  //获取照片路径
+                    String path = cursor.getString(columnIndex); // 获取照片路径
                     Bitmap bitmap = null;
                     String compressionImagePath = "";
                     try {
@@ -302,13 +292,15 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
                             return;
                         }
                         Bitmap compressionBitmap = BitmapUtil.zoomImg(bitmap);
-                        compressionImagePath = mCompressionPath + File.separator + System.currentTimeMillis() + ".png";
+                        compressionImagePath = mCompressionPath + File.separator + System.currentTimeMillis()
+                            + ConstantData.EXTENSION_NAME_PNG;
                         BitmapUtil.saveImg(compressionImagePath, compressionBitmap);
                     } catch (IOException e) {
                         LogUtil.e(TAG, "save image error");
                     }
 
-                    ChatMessage chatMessage = createChatMessage(ChatMessage.PHOTO_TYPE, "", "", compressionImagePath, "");
+                    ChatMessage chatMessage = createChatMessage(ChatMessage.PHOTO_TYPE, "",
+                        "", compressionImagePath, "");
                     mUserInfo.setLastMessage(ConstantData.PHOTO_MESSAGE);
                     mUserInfo.setLastMessageSendTime(chatMessage.getSendTime());
                     addItem(chatMessage);
@@ -349,7 +341,6 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         int top = location[1];
         int right = left + view.getMeasuredWidth();
         int bottom = top + view.getMeasuredHeight();
-        //view.isClickable() &&
         if (y >= top && y <= bottom && x >= left
             && x <= right) {
             return true;
@@ -362,7 +353,7 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
      * 来判断是否隐藏键盘，因为当用户点击EditText时则不能隐藏
      */
     private boolean isShouldHideKeyboard(View view, MotionEvent event) {
-        if ((view instanceof EditText)) {
+        if (view instanceof EditText) {
             int[] l = {0, 0};
             view.getLocationInWindow(l);
             int left = l[0],
@@ -409,7 +400,8 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         LogUtil.d(TAG, "record finish");
         File file = new File(voicePath);
         if (file.exists()) {
-            ChatMessage chatMessage = createChatMessage(ChatMessage.VOICE_TYPE, String.valueOf(time), voicePath, "", "");
+            ChatMessage chatMessage = createChatMessage(ChatMessage.VOICE_TYPE, String.valueOf(time),
+                voicePath, "", "");
             mUserInfo.setLastMessage(ConstantData.PHOTO_MESSAGE);
             mUserInfo.setLastMessageSendTime(chatMessage.getSendTime());
             addItem(chatMessage);
@@ -417,6 +409,17 @@ public class ChatActivity extends Activity implements TextWatcher, View.OnClickL
         }
     }
 
+    @Override
+    public void onItemClick(View view, ChatMessage chatMessage) {
+
+    }
+
+    /**
+     * 消息广播接收器
+     *
+     * @author huangjishun 874904407@qq.com
+     * @since 2019-11-18
+     */
     class MessageBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

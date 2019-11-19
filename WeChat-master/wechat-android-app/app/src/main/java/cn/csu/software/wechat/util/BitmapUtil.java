@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.util;
 
 import android.graphics.Bitmap;
@@ -11,7 +7,6 @@ import android.graphics.Matrix;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -32,6 +27,7 @@ public class BitmapUtil {
      *
      * @param imagePath 图片路径
      * @param bitmap 图片
+     * @throws IOException IO异常
      */
     public static void saveImg(String imagePath, Bitmap bitmap) throws IOException {
         File file = new File(imagePath);
@@ -83,15 +79,16 @@ public class BitmapUtil {
 
     private static Bitmap compressImage(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos); // 质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
         int options = 100;
-        while ( baos.toByteArray().length / 1024 > 100) {  //循环判断如果压缩后图片是否大于100kb,大于继续压缩
+        // 循环判断如果压缩后图片是否大于100kb,大于继续压缩
+        while ( baos.toByteArray().length / 1024 > 100) {
             LogUtil.i(TAG, "compress");
-            baos.reset();//重置baos即清空baos
-            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中
-            options -= 10;//每次都减少10
+            baos.reset(); // 重置baos即清空baos
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos); // 这里压缩options%，把压缩后的数据存放到baos中
+            options -= 10; // 每次都减少10
         }
-        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray()); // 把压缩后的数据baos存放到ByteArrayInputStream中
         return BitmapFactory.decodeStream(isBm, null, null);
     }
 }

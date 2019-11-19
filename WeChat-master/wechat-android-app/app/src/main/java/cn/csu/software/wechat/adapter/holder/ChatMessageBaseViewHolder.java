@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019-2019 cn.csu.software. All rights reserved.
- */
-
 package cn.csu.software.wechat.adapter.holder;
 
 import android.support.annotation.NonNull;
@@ -17,7 +13,10 @@ import android.widget.RelativeLayout;
  * @since 2019-10-19
  */
 public class ChatMessageBaseViewHolder extends RecyclerView.ViewHolder {
-    protected View mItemView;
+    /**
+     * item view
+     */
+    public View mItemView;
 
     public ImageView mAvatarImageView;
 

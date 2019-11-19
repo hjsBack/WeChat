@@ -2,16 +2,21 @@ package cn.csu.software.wechat.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import cn.csu.software.wechat.R;
 import cn.csu.software.wechat.constant.ConstantData;
 
+/**
+ * 设置界面
+ *
+ * @author huangjishun 874904407@qq.com
+ * @since 2019-11-14
+ */
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
-
     private RelativeLayout mLogoutRelativeLayout;
 
     private RelativeLayout mExitRelativeLayout;
@@ -47,6 +52,8 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.rl_setting_logout:
             case R.id.rl_setting_exit:
                 exit();
+                break;
+            default:
                 break;
         }
     }
